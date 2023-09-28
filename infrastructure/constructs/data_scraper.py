@@ -30,11 +30,10 @@ class DataScraper(Construct):
             stage_name=stage_name,
             service_name=service_name,
         )
-        self.device_handler_lambda = self._build_data_scraper(
+        self.data_scraper_lambda = self._build_lambda(
             stage_name=stage_name, lambda_name=lambda_name, env_vars=env_vars
         )
-        self.bike_data_table.grant_read_write_data(self.device_handler_lambda)
-        self.device_event_table.grant_read_write_data(self.device_handler_lambda)
+        self.bike_data_table.grant_read_write_data(self.data_scraper_lambda)
 
     def _create_env_vars(self, stage_name: str, service_name: str):
         return {
@@ -52,9 +51,9 @@ class DataScraper(Construct):
             runtime=aws_lambda.Runtime.NODEJS_18_X,
             environment=env_vars,
             code=aws_lambda.Code.from_asset(".build/lambdas/"),
-            handler="data_scraper.handlers.lambda_scrapper",
+            handler="bike_data_scraper.handlers.lambda_scrapper.handler",
             tracing=aws_lambda.Tracing.ACTIVE,
-            retry_attempts=5,
+            retry_attempts=2,
             timeout=Duration.seconds(15),
             memory_size=128,
             role=self.lambda_role,

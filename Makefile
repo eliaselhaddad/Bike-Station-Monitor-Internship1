@@ -9,7 +9,7 @@ CDK_SYNTH_QUITE = -q "false"
 export AWS_PROFILE := lia-001
 
 bootstrap: pyproject.toml
-	python3 -m venv .venv
+	python -m venv .venv
 	@source .venv/bin/activate && \
 	pip install --upgrade pip pre-commit poetry && \
 	pre-commit install && \
@@ -71,7 +71,7 @@ service_dependencies:
 build: service_dependencies
 	@source .venv/bin/activate && \
 	mkdir -p .build/lambdas && \
-	cp -r device_manager .build/lambdas && \
+	cp -r data_scraper .build/lambdas && \
 	mkdir -p .build/common_layer && \
 	poetry export --without=dev --without-hashes --format=requirements.txt > .build/common_layer/requirements.txt && \
 	deactivate
@@ -82,14 +82,14 @@ pipeline_build:
 	poetry export --without=dev --without-hashes --format=requirements.txt > lambda_requirements.txt
 	poetry export --only=buildpipe --without-hashes --format=requirements.txt > buildpipe_requirements.txt
 	mkdir -p .build/lambdas
-	cp -r device_manager .build/lambdas
+	cp -r data_scraper .build/lambdas
 	mkdir -p .build/common_layer
 	poetry export --without=dev --without-hashes --format=requirements.txt > .build/common_layer/requirements.txt
 	pip install -r buildpipe_requirements.txt
 
 unit_tests: build
 	@source .venv/bin/activate && \
-	pytest tests/unit --cov-config=.coveragerc --cov=device_manager --cov-report xml && \
+	pytest tests/unit --cov-config=.coveragerc --cov=data_scraper --cov-report xml && \
 	deactivate
 
 infra_tests: build
@@ -99,11 +99,11 @@ infra_tests: build
 
 integration_tests: build
 	@source .venv/bin/activate && \
-	pytest tests/integration --cov-config=.coveragerc --cov=device_manager --cov-report html && \
+	pytest tests/integration --cov-config=.coveragerc --cov=data_scraper --cov-report html && \
 	deactivate
 
 e2e_tests: venv build
-	pytest tests/e2e --cov-config=.coveragerc --cov=device_manager --cov-report xml
+	pytest tests/e2e --cov-config=.coveragerc --cov=data_scraper --cov-report xml
 
 sort_imports:
 	@source .venv/bin/activate && \
@@ -122,7 +122,7 @@ format_code:
 
 lint:
 	@source .venv/bin/activate && \
-	flake8 device_manager/* infrastructure/* tests/* && \
+	flake8 data_scraper/* infrastructure/* tests/* && \
 	deactivate
 
 pre-commit:
@@ -135,4 +135,4 @@ pr: service_dependencies sort_imports format_code lint unit_tests infra_tests de
 
 local_lambda_invoke: CDK_SYNTH_QUITE=-q "true"
 local_lambda_invoke: cdk_synth_dev_app
-	@sam local invoke $(lambda) --template ./cdk.out/DeviceManagerStack.template.json --event ./events/sample-lambda/event.json
+	@sam local invoke $(lambda) --template ./cdk.out/DataScraperStack.template.json --event ./events/sample-lambda/event.json
