@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "data-scraper"
+version = "3.0.0"
+description = "Add nice description"
+authors = ["Vinnter Developer"]
+classifiers=[
+    "Programming Language :: Python :: 3.10",
+]
+readme = "README.md"
+keywords = ["serverless"]
+
+[tool.poetry.dependencies]
+python = "^3.10.0"
+#pydantic = {version = "^1.9.0"}
+#email-validator = {version = "*"}
+aws-lambda-powertools =  {extras = ["all"],version = "*"}
+#mypy-boto3-dynamodb = "*"
+#cachetools = "*"
+boto3 = "*"
+
+[tool.poetry.group.buildpipe.dependencies]
+aws-cdk-lib = "*"
+"aws-cdk.aws-lambda-python-alpha" = "*"
+constructs = "*"
+pyyaml = "*"
+
+
+[tool.poetry.group.dev.dependencies]
+# CDK
+data-scraper-infrastructure = {path = "infrastructure", develop = true}
+aws-cdk-lib = "*"
+constructs = "*"
+cdk-nag = "*"
+"aws-cdk.aws-lambda-python-alpha" = "*"
+pyyaml = "*"
+# DEV
+requests = "*"
+requests_aws4auth = "*"
+pytest = "*"
+pytest-mock = "*"
+# pycodestyle = "*"
+pytest-cov = "*"
+pytest-html = "*"
+#python-dateutil = "*"
+#python-dotenv = "*"
+#GitPython = "*"
+#yapf = "*"
+#radon = "*"
+#xenon = "*"
+git-remote-codecommit = "*"
+pre-commit = "*"
+black = "*"
+flake8 = "*"
+isort = "*"
+#mkdocs-material = "*"
+#mkdocs-git-revision-date-plugin = "*"
+#types-cachetools = "*"
+#mypy = "*"
+#types-requests = "*"
+toml = "*"
