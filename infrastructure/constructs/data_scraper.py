@@ -76,11 +76,13 @@ class DataScraper(Construct):
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.NODEJS_18_X,
             environment=env_vars,
-            code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas/")),
-            handler="bike_data_scraper.index.handler",
+            code=aws_lambda.Code.from_asset(
+                os.path.join(cwd, ".build/lambdas/bike_data_scraper")
+            ),
+            handler="index.handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
-            timeout=Duration.seconds(15),
+            timeout=Duration.seconds(80),
             memory_size=128,
             role=self.lambda_role,
         )
