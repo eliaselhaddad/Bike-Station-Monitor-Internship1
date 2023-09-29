@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
     const currentTimestamp = new Date().toISOString();
 
     for (const station of stations) {
-      const StationId = String(station.Name || station.StationId);
+      const StationId = station.Name || station.StationId;
       const params = {
         TableName: "Cyrille-dscrap-bike-data-table",
         Item: {
@@ -33,24 +33,6 @@ exports.handler = async (event, context) => {
           ...station,
         },
       };
-
-      // Convert all int64 and float64 to strings
-      for (let key of [
-        "AvailableBikes",
-        "StationId",
-        "Distance",
-        "Long",
-        "Lat",
-        "TotalBikes",
-      ]) {
-        if (params.Item[key] !== undefined) {
-          params.Item[key] = String(params.Item[key]);
-        }
-      }
-
-      if (params.Item["IsOpen"] !== undefined) {
-        params.Item["IsOpen"] = String(params.Item["IsOpen"]);
-      }
 
       await ddb.put(params).promise();
     }

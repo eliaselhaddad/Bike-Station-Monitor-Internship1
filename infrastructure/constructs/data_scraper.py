@@ -94,7 +94,7 @@ class DataScraper(Construct):
             table_name,
             table_name=table_name,
             partition_key=aws_dynamodb.Attribute(
-                name="StationId", type=aws_dynamodb.AttributeType.STRING
+                name="stationId", type=aws_dynamodb.AttributeType.STRING
             ),
             sort_key=aws_dynamodb.Attribute(
                 name="timestamp", type=aws_dynamodb.AttributeType.STRING
