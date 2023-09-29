@@ -1,9 +1,17 @@
 import aws_cdk
-from aws_cdk import aws_dynamodb, aws_lambda, aws_iam, Duration
+from aws_cdk import (
+    aws_dynamodb,
+    aws_lambda,
+    aws_iam,
+    Duration,
+    aws_events,
+    aws_events_targets,
+)
 
 from constructs import Construct
 
 from aws_cdk.aws_logs import RetentionDays
+import os
 
 
 class DataScraper(Construct):
@@ -14,7 +22,7 @@ class DataScraper(Construct):
 
         service_name = service_config["service"]["service_name"]
         service_short_name = service_config["service"]["service_short_name"]
-
+        cwd = os.getcwd()
         # Dynamodb setup
         dynamodb_name_prefix = f"{stage_name}-{service_short_name}"
 
@@ -31,9 +39,14 @@ class DataScraper(Construct):
             service_name=service_name,
         )
         self.data_scraper_lambda = self._build_lambda(
-            stage_name=stage_name, lambda_name=lambda_name, env_vars=env_vars
+            stage_name=stage_name, lambda_name=lambda_name, env_vars=env_vars, cwd=cwd
         )
         self.bike_data_table.grant_read_write_data(self.data_scraper_lambda)
+
+        # Eventbridge setup
+        self.cron_job_eventbride_rule = self._cron_job_eventbride_rule(
+            lambda_name=lambda_name, cron_expression="cron(*/10 * * * ? *)"
+        )
 
     def _create_env_vars(self, stage_name: str, service_name: str):
         return {
@@ -43,21 +56,33 @@ class DataScraper(Construct):
             "LOG_LEVEL": "DEBUG",
         }
 
-    def _build_lambda(self, lambda_name: str, stage_name: str, env_vars: dict):
+    def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
+        rule = aws_events.Rule(
+            self,
+            f"{lambda_name}-cron-job-eventbride-rule",
+            rule_name=f"{lambda_name}-cron-job-eventbride-rule",
+            enabled=True,
+            schedule=aws_events.Schedule.expression(expression=cron_expression),
+        )
+        rule.add_target(aws_events_targets.LambdaFunction(self.data_scraper_lambda))
+        return rule
+
+    def _build_lambda(
+        self, lambda_name: str, stage_name: str, env_vars: dict, cwd: str = os.getcwd()
+    ):
         lambda_function = aws_lambda.Function(
             self,
             lambda_name,
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.NODEJS_18_X,
             environment=env_vars,
-            code=aws_lambda.Code.from_asset(".build/lambdas/"),
-            handler="bike_data_scraper.handlers.lambda_scrapper.handler",
+            code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas/")),
+            handler="bike_data_scraper.index.handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             timeout=Duration.seconds(15),
             memory_size=128,
             role=self.lambda_role,
-            log_retention=RetentionDays.ONE_DAY,
         )
         return lambda_function
 

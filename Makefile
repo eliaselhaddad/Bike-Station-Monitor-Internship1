@@ -71,7 +71,7 @@ service_dependencies:
 build: service_dependencies
 	@source .venv/bin/activate && \
 	mkdir -p .build/lambdas && \
-	cp -r data_scraper .build/lambdas && \
+	cp -r bike_data_scraper .build/lambdas && \
 	mkdir -p .build/common_layer && \
 	poetry export --without=dev --without-hashes --format=requirements.txt > .build/common_layer/requirements.txt && \
 	deactivate
@@ -82,14 +82,14 @@ pipeline_build:
 	poetry export --without=dev --without-hashes --format=requirements.txt > lambda_requirements.txt
 	poetry export --only=buildpipe --without-hashes --format=requirements.txt > buildpipe_requirements.txt
 	mkdir -p .build/lambdas
-	cp -r data_scraper .build/lambdas
+	cp -r bike_data_scraper .build/lambdas
 	mkdir -p .build/common_layer
 	poetry export --without=dev --without-hashes --format=requirements.txt > .build/common_layer/requirements.txt
 	pip install -r buildpipe_requirements.txt
 
 unit_tests: build
 	@source .venv/bin/activate && \
-	pytest tests/unit --cov-config=.coveragerc --cov=data_scraper --cov-report xml && \
+	pytest tests/unit --cov-config=.coveragerc --cov=bike_data_scraper --cov-report xml && \
 	deactivate
 
 infra_tests: build
@@ -99,11 +99,11 @@ infra_tests: build
 
 integration_tests: build
 	@source .venv/bin/activate && \
-	pytest tests/integration --cov-config=.coveragerc --cov=data_scraper --cov-report html && \
+	pytest tests/integration --cov-config=.coveragerc --cov=bike_data_scraper --cov-report html && \
 	deactivate
 
 e2e_tests: venv build
-	pytest tests/e2e --cov-config=.coveragerc --cov=data_scraper --cov-report xml
+	pytest tests/e2e --cov-config=.coveragerc --cov=bike_data_scraper --cov-report xml
 
 sort_imports:
 	@source .venv/bin/activate && \
@@ -122,7 +122,7 @@ format_code:
 
 lint:
 	@source .venv/bin/activate && \
-	flake8 data_scraper/* infrastructure/* tests/* && \
+	flake8 bike_data_scraper/* infrastructure/* tests/* && \
 	deactivate
 
 pre-commit:
