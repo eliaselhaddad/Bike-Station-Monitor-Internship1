@@ -2,6 +2,7 @@ from aws_cdk import Stack
 from constructs import Construct
 
 from infrastructure.constructs.data_scraper import DataScraper
+from infrastructure.constructs.weather_data_scraper import WeatherDataScraper
 
 
 class DataScraperStack(Stack):
@@ -18,6 +19,13 @@ class DataScraperStack(Stack):
         DataScraper(
             self,
             f"{stage_name}-DataScraper",
+            stage_name=stage_name,
+            service_config=service_config,
+        )
+
+        WeatherDataScraper(
+            self,
+            f"{stage_name}-WeatherDataScraper",
             stage_name=stage_name,
             service_config=service_config,
         )

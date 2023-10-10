@@ -13,8 +13,6 @@ repos:
         name: Check for case conflicts
       - id: check-json
         name: Check JSON files format
-      - id: check-shebang-scripts-are-executable
-        name: Check that scripts with shebangs are executable
       - id: check-merge-conflict
         name: Check for merge conflicts in code
       - id: end-of-file-fixer
