@@ -37,6 +37,7 @@ class DataScraper(Construct):
         env_vars = self._create_env_vars(
             stage_name=stage_name,
             service_name=service_name,
+            bike_data_table_name=bike_data_table_name,
         )
         self.data_scraper_lambda = self._build_lambda(
             stage_name=stage_name, lambda_name=lambda_name, env_vars=env_vars, cwd=cwd
@@ -48,10 +49,11 @@ class DataScraper(Construct):
             lambda_name=lambda_name, cron_expression="cron(*/10 * * * ? *)"
         )
 
-    def _create_env_vars(self, stage_name: str, service_name: str):
+    @staticmethod
+    def _create_env_vars(stage_name: str, service_name: str, bike_data_table_name: str):
         return {
             "STAGE_NAME": stage_name,
-            "DEVICE_TABLE_NAME": self.bike_data_table.table_name,
+            "BIKE_DATA_TABLE_NAME": bike_data_table_name,
             "POWERTOOLS_SERVICE_NAME": f"{service_name}",
             "LOG_LEVEL": "DEBUG",
         }

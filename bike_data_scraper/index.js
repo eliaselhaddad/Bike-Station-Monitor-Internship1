@@ -3,8 +3,13 @@ const AWS = require("aws-sdk");
 
 AWS.config.update({ region: "eu-north-1" });
 const ddb = new AWS.DynamoDB.DocumentClient();
+var bike_data_table_name = process.env.BIKE_DATA_TABLE_NAME;
 
 exports.handler = async (event, context) => {
+  if (!bike_data_table_name) {
+    throw new MissingParameterError('Missing env var bike_data_table_name');
+  }
+
   const app_id = "d722487b-3b24-451c-87fe-db73219c9568";
   let url =
     "https://data.goteborg.se/SelfServiceBicycleService/v2.0/Stations/{APPID}?getclosingperiods={CLOSINGPERIODS}&latitude={LATITUDE}&longitude={LONGITUDE}&radius={RADIUS}&format={FORMAT}";
@@ -26,7 +31,7 @@ exports.handler = async (event, context) => {
     for (const station of stations) {
       const StationId = station.Name || station.StationId;
       const params = {
-        TableName: "Cyrille-dscrap-bike-data-table",
+        TableName: bike_data_table_name,
         Item: {
           stationId: StationId,
           timestamp: currentTimestamp,
