@@ -1,0 +1,19 @@
+{
+  "name": "sos-data-scrapper",
+  "version": "1.0.0",
+  "description": "Collect data for styr och stall",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "codecommit::eu-north-1://data-scraper"
+  },
+  "author": "vinnter",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1432.0",
+    "axios": "^1.4.0"
+  }
+}
