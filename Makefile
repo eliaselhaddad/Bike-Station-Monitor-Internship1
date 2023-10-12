@@ -135,4 +135,4 @@ pr: service_dependencies sort_imports format_code lint unit_tests infra_tests de
 
 local_lambda_invoke: CDK_SYNTH_QUITE=-q "true"
 local_lambda_invoke: cdk_synth_dev_app
-	@sam local invoke $(lambda) --template ./cdk.out/DeviceManagerStack.template.json --event ./events/sample-lambda/event.json
+	@sam local invoke $(lambda) --template ./cdk.out/DataScraperStack.template.json --event ./events/sample-lambda/event.json

@@ -389,3 +389,6 @@ buildpipe_requirements.txt
 tmp
 .dccache
 template.json
+
+# Ignore the package directory
+package/
