@@ -392,3 +392,7 @@ template.json
 
 # Ignore the package directory
 package/
+
+# Ignore file
+testing_lambda_weather.ipynb
+testing_lambda_weather.py

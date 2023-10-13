@@ -6,17 +6,23 @@ import json
 import csv
 from io import StringIO
 from typing import Any, Dict
+import datetime as dt
 
 
 def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
+    # calculate start and end date
+    today = dt.date.today()
+    start_date = today - dt.timedelta(days=14)
+    end_date = today
     # Define the API endpoint and parameters
     api_endpoint = "api.open-meteo.com"
     path = "/v1/forecast"
     params = {
         "latitude": 52.52,
         "longitude": 13.41,
-        "current": "temperature_2m,windspeed_10m",
-        "hourly": "temperature_2m,relativehumidity_2m,windspeed_10m",
+        "start_date": start_date.strftime("%Y-%m-%d"),
+        "end_date": end_date.strftime("%Y-%m-%d"),
+        "hourly": "temperature_2m,relativehumidity_2m,windspeed_10m,precipitation,visibility,snowfall",
     }
 
     # Format parameters for inclusion in URL
@@ -34,9 +40,27 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
         weather_data = json.loads(response_data)
         print(weather_data)  # Print out response
 
+        # Check if 'hourly' key exists in weather_data
+        if "hourly" not in weather_data:
+            error_message = "'hourly' key missing in weather data"
+            print(error_message)
+            conn.close()  # Close the connection
+            return {
+                "statusCode": 400,
+                "body": error_message,
+            }
+
         # Convert JSON to CSV
         hourly_data = weather_data["hourly"]
-        fieldnames = ["time", "temperature_2m", "relativehumidity_2m", "windspeed_10m"]
+        fieldnames = [
+            "time",
+            "temperature_2m",
+            "relativehumidity_2m",
+            "windspeed_10m",
+            "precipitation",
+            "visibility",
+            "snowfall",
+        ]
         csv_data = []
         for i in range(len(hourly_data["time"])):
             row = {field: hourly_data[field][i] for field in fieldnames}
@@ -54,10 +78,10 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
 
         # Save CSV data to S3 bucket
         s3 = boto3.client("s3")
-        bucket_name = "raw-data-weather-and-bikes"
-        object_key = "weather-data.csv"
-
-        s3.put_object(Bucket=bucket_name, Key=object_key, Body=csv_str)
+        object_key = f"weather-data-{end_date.strftime('%Y-%m-%d')}.csv"
+        # object_key = "weather-data.csv"
+        weather_bucket_name = os.environ.get("S3_BUCKET_NAME")
+        s3.put_object(Bucket=weather_bucket_name, Key=object_key, Body=csv_str)
 
         # Close the connection
         conn.close()
