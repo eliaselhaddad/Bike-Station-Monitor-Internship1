@@ -5,7 +5,7 @@ from constructs import Construct
 from infrastructure.data_scraper_stage import DataScraperStage
 
 
-class DeviceManagerPipelineStack(Stack):
+class DataScraperPipelineStack(Stack):
     def __init__(
         self,
         scope: Construct,
@@ -18,7 +18,7 @@ class DeviceManagerPipelineStack(Stack):
         repository = Repository.from_repository_arn(
             self,
             "DataScraperRepo",
-            repository_arn="arn:aws:codecommit:eu-north-1:796717305864:data-scraper",
+            repository_arn=repository_arn,
         )
         pipeline = CodePipeline(
             self,
@@ -28,7 +28,7 @@ class DeviceManagerPipelineStack(Stack):
             cross_account_keys=True,
             synth=ShellStep(
                 "Synth",
-                input=CodePipelineSource.code_commit(repository, "main"),
+                input=CodePipelineSource.code_commit(repository, "master"),
                 commands=[
                     "npm install -g aws-cdk",
                     "make pipeline_build",
@@ -38,8 +38,8 @@ class DeviceManagerPipelineStack(Stack):
         )
         stage_name = "demo"
         demo_env = Environment(
-            account="796717305864",
-            region="eu-north-1",
+            account=service_config["stages"][stage_name]["account"],
+            region=service_config["stages"][stage_name]["region"],
         )
         stage = DataScraperStage(
             self,

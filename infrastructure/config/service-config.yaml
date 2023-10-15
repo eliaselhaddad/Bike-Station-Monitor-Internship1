@@ -20,3 +20,5 @@ stages:
     account: *build
     region: "eu-north-1"
   demo:
+    account: *build
+    region: "eu-north-1"
