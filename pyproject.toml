@@ -17,6 +17,7 @@ aws-lambda-powertools =  {extras = ["all"],version = "*"}
 #mypy-boto3-dynamodb = "*"
 #cachetools = "*"
 boto3 = "*"
+requests = "*"
 
 [tool.poetry.group.buildpipe.dependencies]
 aws-cdk-lib = "*"
@@ -58,3 +59,4 @@ isort = "*"
 #mypy = "*"
 #types-requests = "*"
 toml = "*"
+aws-cdk-aws-cognito-identitypool-alpha = "^2.101.0a0"

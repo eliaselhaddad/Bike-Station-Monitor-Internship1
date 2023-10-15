@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_events,
     aws_events_targets,
 )
+from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 from constructs import Construct
 
@@ -16,10 +17,16 @@ import os
 
 class DataScraper(Construct):
     def __init__(
-        self, scope: Construct, id_: str, stage_name: str, service_config: dict
+        self,
+        scope: Construct,
+        id_: str,
+        stage_name: str,
+        service_config: dict,
+        lambda_layer: PythonLayerVersion,
     ) -> None:
         super().__init__(scope, id_)
 
+        self.lambda_layer = lambda_layer
         service_name = service_config["service"]["service_name"]
         service_short_name = service_config["service"]["service_short_name"]
         cwd = os.getcwd()
@@ -51,7 +58,7 @@ class DataScraper(Construct):
     def _create_env_vars(self, stage_name: str, service_name: str):
         return {
             "STAGE_NAME": stage_name,
-            "DEVICE_TABLE_NAME": self.bike_data_table.table_name,
+            "BIKE_DATA_TABLE_NAME": self.bike_data_table.table_name,
             "POWERTOOLS_SERVICE_NAME": f"{service_name}",
             "LOG_LEVEL": "DEBUG",
         }
@@ -74,17 +81,18 @@ class DataScraper(Construct):
             self,
             lambda_name,
             function_name=lambda_name,
-            runtime=aws_lambda.Runtime.NODEJS_18_X,
+            runtime=aws_lambda.Runtime.PYTHON_3_10,
             environment=env_vars,
             code=aws_lambda.Code.from_asset(
-                os.path.join(cwd, ".build/lambdas/bike_data_scraper")
+                os.path.join(cwd, ".build/lambdas/bike_data_scraper/handlers")
             ),
-            handler="index.handler",
+            handler="data_scraper.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             timeout=Duration.seconds(80),
             memory_size=128,
             role=self.lambda_role,
+            layers=[self.lambda_layer],
         )
         return lambda_function
 
