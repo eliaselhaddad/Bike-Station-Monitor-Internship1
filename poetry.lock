@@ -522,7 +522,7 @@ toml = ["tomli"]
 [[package]]
 name = "data-scraper-infrastructure"
 version = "3.1"
-description = "CDK code for deploying the serverless sevice"
+description = "CDK code for deploying the serverless service"
 optional = false
 python-versions = ">=3.10"
 files = []
@@ -1414,4 +1414,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.0"
-content-hash = "76c1c2f4fa1e31e87653d1c312f7c5201e13e8aabb1c91528058deb37bc26b85"
+content-hash = "d8fdcf39eb80094f8818ee79f110f4d2f3c6546615e1338f2b767cfc2604f9e3"
