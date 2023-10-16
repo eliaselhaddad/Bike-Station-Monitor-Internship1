@@ -26,6 +26,7 @@ class DataScraperPipelineStack(Stack):
             pipeline_name="DataScraperPipeline",
             docker_enabled_for_synth=True,
             cross_account_keys=True,
+            publish_assets_in_parallel=False,
             synth=ShellStep(
                 "Synth",
                 input=CodePipelineSource.code_commit(repository, "master"),
