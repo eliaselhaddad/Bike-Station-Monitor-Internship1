@@ -105,7 +105,7 @@ class DataFetchAndSave(Construct):
         return {
             "STAGE_NAME": stage_name,
             "S3_BUCKET_NAME": "bikedatalake",
-            "BIKE_TABLE_NAME": "Cyrille-dscrap-bike-data-table",
+            "BIKE_TABLE_NAME": f"{stage_name}-{service_short_name}-bike-data-table",
             "LOG_LEVEL": "DEBUG",
             "SERVICE_NAME": service_name,
         }
