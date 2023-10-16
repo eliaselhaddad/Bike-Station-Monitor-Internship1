@@ -45,10 +45,10 @@ class DataScraperStack(Stack):
             service_config=service_config,
         )
 
-        CognitoUserPool(
-            self,
-            f"{stage_name}-CognitoUserPool",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_common_layer=common_layer,
-        )
+        # CognitoUserPool(
+        #     self,
+        #     f"{stage_name}-CognitoUserPool",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_common_layer=common_layer,
+        # )
