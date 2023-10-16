@@ -16,7 +16,12 @@ import os
 
 class DataPreprocessed(Construct):
     def __init__(
-        self, scope: Construct, id_: str, stage_name: str, service_config: dict
+        self,
+        scope: Construct,
+        id_: str,
+        stage_name: str,
+        service_config: dict,
+        lambda_layer: aws_lambda.LayerVersion,
     ) -> None:
         super().__init__(scope, id_)
 
@@ -24,6 +29,7 @@ class DataPreprocessed(Construct):
         service_name = service_short_name
         cwd = os.getcwd()
 
+        self.lambda_layer = lambda_layer
         # # setup lambda layer from layers folder
         # self.lambda_layer = aws_lambda.LayerVersion(
         #     self,
@@ -109,8 +115,8 @@ class DataPreprocessed(Construct):
             environment=env_vars,
             timeout=Duration.seconds(900),
             log_retention=RetentionDays.ONE_WEEK,
-            memory_size=128,
-            # layers=[self.lambda_layer],
+            memory_size=1024,
+            layers=[self.lambda_layer],
         )
 
     def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):

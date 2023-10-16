@@ -3,6 +3,40 @@ import boto3
 from loguru import logger
 import pandas as pd
 
+SOURCE_BUCKET = "raw-data-weather-and-bikes"
+WEATHER_KEY = "weather-09-29-10-13.csv"
+BIKES_KEY = "bikes-09-29-10-13.csv"
+DESTINATION_BUCKET = "cyrille-dscrap-bucket"
+
+
+def lambda_handler(event, context):
+    bucket = SOURCE_BUCKET
+    weather_key = WEATHER_KEY
+    bikes_key = BIKES_KEY
+    bucket_to_save = DESTINATION_BUCKET
+    df = None
+
+    weather_data = get_data_from_s3(bucket, weather_key)
+    bikes_data = get_data_from_s3(bucket, bikes_key)
+
+    if weather_data is not None and bikes_data is not None:
+        weather_data, bikes_data = convert_time_to_more_features(
+            weather_data, bikes_data
+        )
+
+        df = merge_both_columns({"weather": weather_data, "bikes": bikes_data})
+    else:
+        logger.warning("Oops! No data found")
+
+    if df is not None:
+        df = clean_unused_merge_columns(df)
+        df = add_total_available_bikes_column(df)
+        df = derive_weekend_feature(df)
+        create_final_datasets_s3(df, bucket_to_save, "prep")
+        logger.info("Done!")
+    else:
+        logger.warning("Something went wrong, data didnt process!")
+
 
 def get_data_from_s3(bucket: str, key: str) -> pd.DataFrame:
     s3 = boto3.client("s3")
@@ -115,32 +149,3 @@ def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
         logger.info("Successfully saved to S3.")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
-
-
-def lambda_handler():
-    bucket = "raw-data-weather-and-bikes"
-    weather_key = "weather-09-29-10-13.csv"
-    bikes_key = "bikes-09-29-10-13.csv"
-
-    df = None
-
-    weather_data = get_data_from_s3(bucket, weather_key)
-    bikes_data = get_data_from_s3(bucket, bikes_key)
-
-    if weather_data is not None and bikes_data is not None:
-        weather_data, bikes_data = convert_time_to_more_features(
-            weather_data, bikes_data
-        )
-
-        df = merge_both_columns({"weather": weather_data, "bikes": bikes_data})
-    else:
-        logger.warning("Oops! No data found")
-
-    if df is not None:
-        df = clean_unused_merge_columns(df)
-        df = add_total_available_bikes_column(df)
-        df = derive_weekend_feature(df)
-        create_final_datasets_s3(df, bucket, "prep")
-        logger.info("Done!")
-    else:
-        logger.warning("Something went wrong, data didnt process!")

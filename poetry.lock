@@ -67,18 +67,36 @@ publication = ">=0.0.3"
 typeguard = ">=2.13.3,<2.14.0"
 
 [[package]]
+name = "aws-cdk-aws-cognito-identitypool-alpha"
+version = "2.100.0a0"
+description = "The CDK Construct Library for AWS::Cognito Identity Pools"
+optional = false
+python-versions = "~=3.7"
+files = [
+    {file = "aws-cdk.aws-cognito-identitypool-alpha-2.100.0a0.tar.gz", hash = "sha256:9739f611e6b3622f9f08e2db3239383e5c4c83d721eb239c61fc3803e4541689"},
+    {file = "aws_cdk.aws_cognito_identitypool_alpha-2.100.0a0-py3-none-any.whl", hash = "sha256:5536d7e56ea205f31eaa0b75e779b631cd223585bae32d7d9a259c77e74bc2e7"},
+]
+
+[package.dependencies]
+aws-cdk-lib = ">=2.100.0,<3.0.0"
+constructs = ">=10.0.0,<11.0.0"
+jsii = ">=1.89.0,<2.0.0"
+publication = ">=0.0.3"
+typeguard = ">=2.13.3,<2.14.0"
+
+[[package]]
 name = "aws-cdk-aws-lambda-python-alpha"
-version = "2.101.0a0"
+version = "2.100.0a0"
 description = "The CDK Construct Library for AWS Lambda in Python"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "aws-cdk.aws-lambda-python-alpha-2.101.0a0.tar.gz", hash = "sha256:35905add5e83ebdd800b2cb353708f40a52903d5268c80efe3239b17138e16ab"},
-    {file = "aws_cdk.aws_lambda_python_alpha-2.101.0a0-py3-none-any.whl", hash = "sha256:694cfdff478edc1909702bc8cffa26f4706257b4d43a2406fafa59e749210c56"},
+    {file = "aws-cdk.aws-lambda-python-alpha-2.100.0a0.tar.gz", hash = "sha256:b4c0dfee9a105f76a5cc7dcdea8464068ab3de3f79717bd9e0a68cd3671261c2"},
+    {file = "aws_cdk.aws_lambda_python_alpha-2.100.0a0-py3-none-any.whl", hash = "sha256:0baaea3a82048d7440cc09ef200b9c6b0d3da08ed553995fe5440cec68211bbe"},
 ]
 
 [package.dependencies]
-aws-cdk-lib = ">=2.101.0,<3.0.0"
+aws-cdk-lib = ">=2.100.0,<3.0.0"
 constructs = ">=10.0.0,<11.0.0"
 jsii = ">=1.89.0,<2.0.0"
 publication = ">=0.0.3"
@@ -86,13 +104,13 @@ typeguard = ">=2.13.3,<2.14.0"
 
 [[package]]
 name = "aws-cdk-lib"
-version = "2.101.0"
+version = "2.100.0"
 description = "Version 2 of the AWS Cloud Development Kit library"
 optional = false
 python-versions = "~=3.7"
 files = [
-    {file = "aws-cdk-lib-2.101.0.tar.gz", hash = "sha256:2ac3669e1ecc13e56302ac2b97011545f4a19c6d29a9b74d60f28855e0a843ee"},
-    {file = "aws_cdk_lib-2.101.0-py3-none-any.whl", hash = "sha256:adbf2da2bb159ac31a0441ddc263fb472dfa90d6e0b337b5795a5b07796f72e8"},
+    {file = "aws-cdk-lib-2.100.0.tar.gz", hash = "sha256:39d6ab3ffcd87b60a541b4714f0ecefd169055a647376521728d64786393680a"},
+    {file = "aws_cdk_lib-2.100.0-py3-none-any.whl", hash = "sha256:8c43fe03e1e9e7dc9a4f8003d1c4e04c5ac5fe2ec4a44928695785dff6d086ee"},
 ]
 
 [package.dependencies]
@@ -1210,6 +1228,20 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-dotenv"
+version = "1.0.0"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python-dotenv-1.0.0.tar.gz", hash = "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba"},
+    {file = "python_dotenv-1.0.0-py3-none-any.whl", hash = "sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "pytz"
 version = "2023.3.post1"
 description = "World timezone definitions, modern and historical"
@@ -1559,4 +1591,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.13"
-content-hash = "2a9ff2e58064e1622ba6ab012389f7a692e8e1cc754ded6c07c8420ceabfe0d9"
+content-hash = "a293438aa4c7a9dff0e9aa60b1f5d4bd1b4143af516b6a48e0d227acabdc37b8"
