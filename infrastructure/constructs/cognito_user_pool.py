@@ -163,40 +163,40 @@ class CognitoUserPool(Construct):
             ),
         )
 
-        bucket_name = "replace-when-we-know-what-bucket-to-use"
-        role = idp.authenticated_role
-        role.attach_inline_policy(
-            Policy(
-                self,
-                "CognitoAccessBucket",
-                statements=[
-                    PolicyStatement(
-                        actions=["s3:ListAllMyBuckets", "s3:GetBucketLocation"],
-                        resources=["*"],
-                    ),
-                    PolicyStatement(
-                        actions=["s3:ListBucket"],
-                        resources=["arn:aws:s3:::bucket-name"],
-                        conditions={
-                            "StringLike": {
-                                "s3:prefix": [
-                                    "",
-                                    "/",
-                                    "${cognito-identity.amazonaws.com:sub}/*",
-                                ]
-                            }
-                        },
-                    ),
-                    PolicyStatement(
-                        actions=["s3:*"],
-                        resources=[
-                            f"arn:aws:s3:::{bucket_name}/${{cognito-identity.amazonaws.com:sub}}",
-                            f"arn:aws:s3:::{bucket_name}/${{cognito-identity.amazonaws.com:sub}}/*",
-                        ],
-                    ),
-                ],
-            )
-        )
+        # bucket_name = "replace-when-we-know-what-bucket-to-use"
+        # role = idp.authenticated_role
+        # role.attach_inline_policy(
+        #     Policy(
+        #         self,
+        #         "CognitoAccessBucket",
+        #         statements=[
+        #             PolicyStatement(
+        #                 actions=["s3:ListAllMyBuckets", "s3:GetBucketLocation"],
+        #                 resources=["*"],
+        #             ),
+        #             PolicyStatement(
+        #                 actions=["s3:ListBucket"],
+        #                 resources=["arn:aws:s3:::bucket-name"],
+        #                 conditions={
+        #                     "StringLike": {
+        #                         "s3:prefix": [
+        #                             "",
+        #                             "/",
+        #                             "${cognito-identity.amazonaws.com:sub}/*",
+        #                         ]
+        #                     }
+        #                 },
+        #             ),
+        #             PolicyStatement(
+        #                 actions=["s3:*"],
+        #                 resources=[
+        #                     f"arn:aws:s3:::{bucket_name}/${{cognito-identity.amazonaws.com:sub}}",
+        #                     f"arn:aws:s3:::{bucket_name}/${{cognito-identity.amazonaws.com:sub}}/*",
+        #                 ],
+        #             ),
+        #         ],
+        #     )
+        # )
 
         return idp
 
