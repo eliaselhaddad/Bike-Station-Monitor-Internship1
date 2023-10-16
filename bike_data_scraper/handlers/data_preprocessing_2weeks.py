@@ -1,7 +1,9 @@
+from datetime import datetime
 from io import StringIO
+
 import boto3
-from loguru import logger
 import pandas as pd
+from loguru import logger
 
 SOURCE_BUCKET = "raw-data-weather-and-bikes"
 WEATHER_KEY = "weather-09-29-10-13.csv"
@@ -32,7 +34,7 @@ def lambda_handler(event, context):
         df = clean_unused_merge_columns(df)
         df = add_total_available_bikes_column(df)
         df = derive_weekend_feature(df)
-        create_final_datasets_s3(df, bucket_to_save, "prep")
+        create_final_datasets_s3(df, bucket_to_save, "preprocessed")
         logger.info("Done!")
     else:
         logger.warning("Something went wrong, data didnt process!")
@@ -129,19 +131,20 @@ def add_total_available_bikes_column(df: pd.DataFrame) -> pd.DataFrame:
 def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
     try:
         s3 = boto3.resource("s3")
+        today_date = datetime.now().strftime("%d-%m-%Y")
         SingleBikes = df[df["stationId"].str.startswith("BIKE")]
         StationaryStations = df[~df["stationId"].str.startswith("BIKE")]
 
         csv_buffer_single_bikes = StringIO()
         SingleBikes.to_csv(csv_buffer_single_bikes, index=False)
-        s3.Object(bucket, f"{path}/SingleBikes.csv").put(
+        s3.Object(bucket, f"{path}/{today_date}/SingleBikes.csv").put(
             Body=csv_buffer_single_bikes.getvalue()
         )
         csv_buffer_single_bikes.close()
 
         csv_buffer_stationary_stations = StringIO()
         StationaryStations.to_csv(csv_buffer_stationary_stations, index=False)
-        s3.Object(bucket, f"{path}/StationaryStations.csv").put(
+        s3.Object(bucket, f"{path}/{today_date}/StationaryStations.csv").put(
             Body=csv_buffer_stationary_stations.getvalue()
         )
         csv_buffer_stationary_stations.close()
