@@ -20,7 +20,7 @@ boto3 = "*"
 requests = "*"
 
 [tool.poetry.group.buildpipe.dependencies]
-aws-cdk-lib = "*"
+aws-cdk-lib = "2.100.0"
 "aws-cdk.aws-lambda-python-alpha" = "*"
 "aws-cdk-aws-cognito-identitypool-alpha" = "*"
 constructs = "*"
@@ -30,7 +30,7 @@ pyyaml = "*"
 [tool.poetry.group.dev.dependencies]
 # CDK
 data-scraper-infrastructure = {path = "infrastructure", develop = true}
-aws-cdk-lib = "*"
+aws-cdk-lib = "2.100.0"
 constructs = "*"
 cdk-nag = "*"
 "aws-cdk.aws-lambda-python-alpha" = "*"
