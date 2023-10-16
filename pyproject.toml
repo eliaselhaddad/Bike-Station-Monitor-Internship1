@@ -10,13 +10,16 @@ readme = "README.md"
 keywords = ["serverless"]
 
 [tool.poetry.dependencies]
-python = "^3.10.0"
+python = ">=3.10.0,<3.13"
 #pydantic = {version = "^1.9.0"}
 #email-validator = {version = "*"}
 aws-lambda-powertools =  {extras = ["all"],version = "*"}
 #mypy-boto3-dynamodb = "*"
 #cachetools = "*"
 boto3 = "*"
+loguru = "^0.7.2"
+pandas = "^2.1.1"
+
 
 [tool.poetry.group.buildpipe.dependencies]
 aws-cdk-lib = "*"
