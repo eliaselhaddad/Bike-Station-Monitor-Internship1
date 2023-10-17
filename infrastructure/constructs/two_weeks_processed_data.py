@@ -30,13 +30,6 @@ class DataPreprocessed(Construct):
         cwd = os.getcwd()
 
         self.lambda_layer = lambda_layer
-        # # setup lambda layer from layers folder
-        # self.lambda_layer = aws_lambda.LayerVersion(
-        #     self,
-        #     "preprocessing_layer",
-        #     code=aws_lambda.Code.from_asset("my_layer.zip"),
-        # )
-        # S3 setup
         s3_name_prefix = f"{stage_name}-{service_short_name}"
         self.s3_bucket = self._create_s3_bucket(self, s3_name_prefix)
 
@@ -47,28 +40,33 @@ class DataPreprocessed(Construct):
         env_vars = self._create_env_vars(
             stage_name=stage_name,
             service_name=service_name,
-            s3_bucket_name=self.s3_bucket.bucket_name,
+            s3_destination_bucket=self.s3_bucket.bucket_name,
+            s3_source_bucket=f"raw-data-weather-and-bikes",
         )
 
+        # Build Lambda
         self.data_preprocessed_lambda = self._build_lambda(
             stage_name=stage_name, lambda_name=lambda_name, env_vars=env_vars, cwd=cwd
         )
 
         self.s3_bucket.grant_read_write(self.data_preprocessed_lambda)
 
-        # Eventbridge setup
-        self.cron_job_eventbride_rule = self._cron_job_eventbride_rule(
-            lambda_name=lambda_name, cron_expression="cron(0 0 1/14 * ? *)"
-        )
-
     @staticmethod
-    def _create_env_vars(stage_name: str, service_name: str, s3_bucket_name: str):
+    def _create_env_vars(
+        stage_name: str,
+        service_name: str,
+        s3_source_bucket: str,
+        s3_destination_bucket: str,
+    ) -> dict:
         return {
             "STAGE_NAME": stage_name,
-            "S3_BUCKET_NAME": s3_bucket_name,
+            "S3_SOURCE_BUCKET": s3_source_bucket,
+            "S3_DESTINATION_BUCKET": s3_destination_bucket,
             "POWERTOOLS_SERVICE_NAME": f"{service_name}",
             "LOG_LEVEL": "DEBUG",
             "SERVICE_NAME": service_name,
+            "WEATHER_KEY": "weather-09-29-10-13.csv",
+            "BIKES_KEY": "bikes-09-29-10-13.csv",
         }
 
     def _create_s3_bucket(self, scope: Construct, s3_name_prefix: str) -> aws_s3.Bucket:
@@ -118,16 +116,3 @@ class DataPreprocessed(Construct):
             memory_size=1024,
             layers=[self.lambda_layer],
         )
-
-    def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
-        rule = aws_events.Rule(
-            self,
-            id=f"{lambda_name}-cron-job-eventbride-rule",
-            rule_name=f"{lambda_name}-cron-job-eventbride-rule",
-            enabled=True,
-            schedule=aws_events.Schedule.expression(expression=cron_expression),
-        )
-        rule.add_target(
-            aws_events_targets.LambdaFunction(self.data_preprocessed_lambda)
-        )
-        return rule

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from io import StringIO
 
@@ -5,10 +6,14 @@ import boto3
 import pandas as pd
 from loguru import logger
 
-SOURCE_BUCKET = "raw-data-weather-and-bikes"
-WEATHER_KEY = "weather-09-29-10-13.csv"
-BIKES_KEY = "bikes-09-29-10-13.csv"
-DESTINATION_BUCKET = "cyrille-dscrap-bucket"
+WEATHER_KEY = os.environ["WEATHER_KEY"]
+BIKES_KEY = os.environ["BIKES_KEY"]
+DESTINATION_BUCKET = os.environ["S3_DESTINATION_BUCKET"]
+SOURCE_BUCKET = os.environ["S3_SOURCE_BUCKET"]
+
+S3_RESOURCE = boto3.resource("s3")
+S3_CLIENT = boto3.client("s3")
+CURRENT_DATE = datetime.now().strftime("%d-%m-%Y")
 
 
 def lambda_handler(event, context):
@@ -18,31 +23,41 @@ def lambda_handler(event, context):
     bucket_to_save = DESTINATION_BUCKET
     df = None
 
-    weather_data = get_data_from_s3(bucket, weather_key)
-    bikes_data = get_data_from_s3(bucket, bikes_key)
+    try:
+        weather_data = get_data_from_s3(bucket, weather_key)
+        bikes_data = get_data_from_s3(bucket, bikes_key)
 
-    if weather_data is not None and bikes_data is not None:
+        if weather_data is None or bikes_data is None:
+            raise ValueError("Missing data for weather or bikes")
+
         weather_data, bikes_data = convert_time_to_more_features(
             weather_data, bikes_data
         )
 
         df = merge_both_columns({"weather": weather_data, "bikes": bikes_data})
-    else:
-        logger.warning("Oops! No data found")
+    except Exception as e:
+        logger.warning(f"Oops! No data found in dataframe for merging. Error: {e}")
+        return
 
-    if df is not None:
+    try:
+        if df is None:
+            raise ValueError("DataFrame is empty")
+
         df = clean_unused_merge_columns(df)
         df = add_total_available_bikes_column(df)
         df = derive_weekend_feature(df)
-        create_final_datasets_s3(df, bucket_to_save, "preprocessed")
-        logger.info("Done!")
-    else:
-        logger.warning("Something went wrong, data didnt process!")
+        create_final_datasets_s3(df, bucket_to_save, "processed")
+        logger.info(
+            print(
+                f"Done! Data successfully processed and saved in https://s3.console.aws.amazon.com/s3/buckets/{bucket_to_save}/processed/{CURRENT_DATE}/"
+            )
+        )
+    except Exception as e:
+        logger.warning(f"Something went wrong, data didn't process! Error: {e}")
 
 
 def get_data_from_s3(bucket: str, key: str) -> pd.DataFrame:
-    s3 = boto3.client("s3")
-    obj = s3.get_object(Bucket=bucket, Key=key)
+    obj = S3_CLIENT.get_object(Bucket=bucket, Key=key)
     df = pd.read_csv(obj["Body"])
     return df
 
@@ -80,7 +95,7 @@ def convert_time_to_more_features(
 
 
 def merge_both_columns(data_dict: dict) -> pd.DataFrame:
-    logger.info("Merging both columns")
+    logger.info("Merging weather and bikes datasets on columns: Year, Month, Day, Hour")
     merge_columns = ["Year", "Month", "Day", "Hour"]
 
     weather_data = data_dict.get("weather")
@@ -128,27 +143,25 @@ def add_total_available_bikes_column(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def save_datagframe_to_s3(df, bucket, path, filename):
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False)
+    S3_RESOURCE.Object(bucket, f"{path}/{CURRENT_DATE}/{filename}.csv").put(
+        Body=csv_buffer.getvalue()
+    )
+    csv_buffer.close()
+
+
 def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
     try:
-        s3 = boto3.resource("s3")
-        today_date = datetime.now().strftime("%d-%m-%Y")
         SingleBikes = df[df["stationId"].str.startswith("BIKE")]
         StationaryStations = df[~df["stationId"].str.startswith("BIKE")]
 
-        csv_buffer_single_bikes = StringIO()
-        SingleBikes.to_csv(csv_buffer_single_bikes, index=False)
-        s3.Object(bucket, f"{path}/{today_date}/SingleBikes.csv").put(
-            Body=csv_buffer_single_bikes.getvalue()
-        )
-        csv_buffer_single_bikes.close()
+        save_datagframe_to_s3(SingleBikes, bucket, path, "SingleBikes")
+        save_datagframe_to_s3(StationaryStations, bucket, path, "StationaryStations")
 
-        csv_buffer_stationary_stations = StringIO()
-        StationaryStations.to_csv(csv_buffer_stationary_stations, index=False)
-        s3.Object(bucket, f"{path}/{today_date}/StationaryStations.csv").put(
-            Body=csv_buffer_stationary_stations.getvalue()
+        logger.info(
+            f"Successfully saved to Single and Stations bike data to S3 {bucket}/{path}."
         )
-        csv_buffer_stationary_stations.close()
-
-        logger.info("Successfully saved to S3.")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
