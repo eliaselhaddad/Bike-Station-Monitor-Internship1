@@ -13,7 +13,7 @@ from constructs import Construct
 import os
 
 
-class DataFetchAndSave(Construct):
+class SaveTwoWeeksBikeDataToCsv(Construct):
     def __init__(
         self, scope: Construct, id_: str, stage_name: str, service_config: dict
     ) -> None:
@@ -22,7 +22,9 @@ class DataFetchAndSave(Construct):
         service_short_name = service_config["service"]["service_short_name"]
         service_name = service_short_name
 
-        lambda_name = f"{stage_name}-{service_short_name}-data-fetch-and-save"
+        lambda_name = (
+            f"{stage_name}-{service_short_name}-save-two-weeks-bike-data-to-csv"
+        )
         lambda_role_name = f"{lambda_name}-role"
         lambda_role = self._build_lambda_role(lambda_role_name)
 
@@ -49,7 +51,7 @@ class DataFetchAndSave(Construct):
             aws_iam.PolicyStatement(
                 actions=["dynamodb:Scan", "dynamodb:GetItem"],
                 resources=[
-                    "arn:aws:dynamodb:eu-north-1:796717305864:table/Cyrille-dscrap-bike-data-table"
+                    f"arn:aws:dynamodb:eu-north-1:796717305864:table/{stage_name}-{service_short_name}-bike-data-table"
                 ],
             )
         )
@@ -80,7 +82,7 @@ class DataFetchAndSave(Construct):
             handler="data_fetch_and_save_lambda.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
-            timeout=Duration.seconds(80),
+            timeout=Duration.seconds(200),
             memory_size=128,
             role=lambda_role,
         )
@@ -104,7 +106,7 @@ class DataFetchAndSave(Construct):
     ) -> dict:
         return {
             "STAGE_NAME": stage_name,
-            "S3_BUCKET_NAME": "bikedatalake",
+            "S3_BUCKET_NAME": f"{stage_name}-{service_short_name}-raw-data-weather-and-bikes",
             "BIKE_TABLE_NAME": f"{stage_name}-{service_short_name}-bike-data-table",
             "LOG_LEVEL": "DEBUG",
             "SERVICE_NAME": service_name,

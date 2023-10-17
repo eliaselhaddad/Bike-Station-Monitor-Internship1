@@ -2,7 +2,7 @@ from aws_cdk import Stack
 from constructs import Construct
 
 from infrastructure.constructs.data_scraper import DataScraper
-from infrastructure.constructs.data_fetch_and_save import DataFetchAndSave
+from infrastructure.constructs.data_fetch_and_save import SaveTwoWeeksBikeDataToCsv
 
 
 class DataScraperStack(Stack):
@@ -23,9 +23,9 @@ class DataScraperStack(Stack):
             service_config=service_config,
         )
 
-        DataFetchAndSave(
+        SaveTwoWeeksBikeDataToCsv(
             self,
-            f"{stage_name}-DataFetchAndSave",
+            f"{stage_name}-SaveTwoWeeksBikeDataToCsv",
             stage_name=stage_name,
             service_config=service_config,
         )
