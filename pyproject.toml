@@ -10,17 +10,23 @@ readme = "README.md"
 keywords = ["serverless"]
 
 [tool.poetry.dependencies]
-python = "^3.10.0"
+python = ">=3.10.0,<3.13"
 #pydantic = {version = "^1.9.0"}
 #email-validator = {version = "*"}
 aws-lambda-powertools =  {extras = ["all"],version = "*"}
 #mypy-boto3-dynamodb = "*"
 #cachetools = "*"
 boto3 = "*"
+loguru = "^0.7.2"
+pandas = "^2.1.1"
+
+requests = "*"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.buildpipe.dependencies]
-aws-cdk-lib = "*"
+aws-cdk-lib = "2.100.0"
 "aws-cdk.aws-lambda-python-alpha" = "*"
+"aws-cdk-aws-cognito-identitypool-alpha" = "*"
 constructs = "*"
 pyyaml = "*"
 
@@ -28,10 +34,11 @@ pyyaml = "*"
 [tool.poetry.group.dev.dependencies]
 # CDK
 data-scraper-infrastructure = {path = "infrastructure", develop = true}
-aws-cdk-lib = "*"
+aws-cdk-lib = "2.100.0"
 constructs = "*"
 cdk-nag = "*"
 "aws-cdk.aws-lambda-python-alpha" = "*"
+"aws-cdk-aws-cognito-identitypool-alpha" = "*"
 pyyaml = "*"
 # DEV
 requests = "*"

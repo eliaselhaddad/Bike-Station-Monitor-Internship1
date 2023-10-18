@@ -12,8 +12,13 @@ pipeline:
   repository_name: "data-scraper"
   repository_arn: "arn:aws:codecommit:eu-north-1:796717305864:data-scraper"
 
+default_admin_users:
+  - erik.manfredsson@vinnter.se
+
 stages:
   dev:
     account: *build
     region: "eu-north-1"
   demo:
+    account: *build
+    region: "eu-north-1"

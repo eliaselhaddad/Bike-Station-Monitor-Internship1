@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 setup(
     name="data-scraper-infrastructure",
     version="3.1",
-    description="CDK code for deploying the serverless sevice",
+    description="CDK code for deploying the serverless service",
     classifiers=[
         "Programming Language :: Python :: 3.10",
     ],

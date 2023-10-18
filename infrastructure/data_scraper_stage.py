@@ -1,7 +1,7 @@
 from aws_cdk import Stage
 from constructs import Construct
 
-from infrastructure.data_scraper_stack import DataScraperStack
+from infrastructure.data_scraper_stack import DataScraperStack, DataPrepocessed
 
 
 class DataScraperStage(Stage):
