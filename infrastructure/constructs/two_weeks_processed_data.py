@@ -103,10 +103,8 @@ class DataPreprocessed(Construct):
             id=lambda_name,
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.PYTHON_3_10,
-            code=aws_lambda.Code.from_asset(
-                path=os.path.join(cwd, ".build/lambdas/bike_data_scraper/handlers")
-            ),
-            handler="data_preprocessing_2weeks.lambda_handler",
+            code=aws_lambda.Code.from_asset(path=os.path.join(cwd, ".build/lambdas/")),
+            handler="bike_data_scraper/handlers/data_preprocessing_2weeks.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             role=self.lambda_role,
