@@ -5,6 +5,7 @@ from constructs import Construct
 from infrastructure.constructs.cognito_user_pool import CognitoUserPool
 from infrastructure.constructs.data_scraper import DataScraper
 from infrastructure.constructs.two_weeks_processed_data import DataPreprocessed
+from infrastructure.constructs.step_functions_poc import StepFunctionsPoc
 from infrastructure.constructs.weather_data_scraper import WeatherDataScraper
 
 
@@ -56,6 +57,13 @@ class DataScraperStack(Stack):
         DataPreprocessed(
             self,
             f"{stage_name}-DataPrepocessed",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
+        StepFunctionsPoc(
+            self,
+            f"{stage_name}-StepFunctionsPoc",
             stage_name=stage_name,
             service_config=service_config,
             lambda_layer=common_layer,
