@@ -27,10 +27,10 @@ def get_weather_data(bucket: str, key: str) -> pd.DataFrame:
     return weather_data
 
 
-def number_of_bikes_available(df: pd.DataFrame, dataframe_name: str) -> object:
+def number_of_bikes_available(df: pd.DataFrame, item: str) -> object:
     logger.info("Calculating number of bikes available")
     number_of_unique_bikes_in_dataset = df["stationId"].nunique()
-    unique_bike_object = f"{dataframe_name}: {number_of_unique_bikes_in_dataset}"
+    unique_bike_object = f"{item}: {number_of_unique_bikes_in_dataset}"
     return unique_bike_object
 
 
@@ -143,24 +143,31 @@ def process_station_data():
             raise Exception("No station data found in weather or bike buckets")
 
         number_of_bikes_available_stations = number_of_bikes_available(
-            station_bikes_data, "Stations"
+            station_bikes_data, "number_of_bikes_available"
         )
         warmest_temperature_stations = warmest_temperature(
-            station_bikes_data, "Stations"
+            station_bikes_data, "warmest_temperature"
         )
         coldest_temperature_stations = coldest_temperature(
-            station_bikes_data, "Stations"
+            station_bikes_data, "coldest_temperature"
         )
-        coldest_day_stations = coldest_day(station_bikes_data, "Stations")
-        warmest_day_stations = warmest_day(station_bikes_data, "Stations")
+        coldest_day_stations = coldest_day(station_bikes_data, "coldest_day")
+        warmest_day_stations = warmest_day(station_bikes_data, "warmest_day")
         day_with_most_used_bikes_stations = day_with_most_used_bikes(
-            station_bikes_data, "Stations"
+            station_bikes_data, "day_with_most_used_bikes"
         )
-        correlation_matrix_plot(station_bikes_data, "Stations")
-        weekend_vs_weekday_plot(station_bikes_data, "Stations")
-        weather_over_timestamp_plot(station_bikes_data, "Stations")
+        correlation_matrix = correlation_matrix_plot(
+            station_bikes_data, "correlation_matrix"
+        )
+        weekend_vs_weekday = weekend_vs_weekday_plot(
+            station_bikes_data, "weekend_vs_weekday"
+        )
+        weather_over_timestamp = weather_over_timestamp_plot(
+            station_bikes_data, "weather_over_timestamp"
+        )
     except Exception as e:
         logger.error(f"Error: {e}")
+        raise e
 
 
 def process_single_data():
@@ -170,20 +177,25 @@ def process_single_data():
             raise Exception("No single data found in weather or bike buckets")
 
         number_of_bikes_available_singles = number_of_bikes_available(
-            single_bikes_data, "Singles"
+            single_bikes_data, "number_of_bikes_available"
         )
-        warmest_temperature_singles = warmest_temperature(single_bikes_data, "Singles")
-        coldest_temperature_singles = coldest_temperature(single_bikes_data, "Singles")
-        coldest_day_singles = coldest_day(single_bikes_data, "Singles")
-        warmest_day_singles = warmest_day(single_bikes_data, "Singles")
+        warmest_temperature_singles = warmest_temperature(
+            single_bikes_data, "warmest_temperature"
+        )
+        coldest_temperature_singles = coldest_temperature(
+            single_bikes_data, "coldest_temperature"
+        )
+        coldest_day_singles = coldest_day(single_bikes_data, "coldest_day")
+        warmest_day_singles = warmest_day(single_bikes_data, "warmest_day")
         day_with_most_used_bikes_singles = day_with_most_used_bikes(
-            single_bikes_data, "Singles"
+            single_bikes_data, "day_with_most_used_bikes"
         )
-        correlation_matrix_plot(single_bikes_data, "Singles")
-        weekend_vs_weekday_plot(single_bikes_data, "Singles")
-        weather_over_timestamp_plot(single_bikes_data, "Singles")
+        correlation_matrix_plot(single_bikes_data, "correlation_matrix")
+        weekend_vs_weekday_plot(single_bikes_data, "weekend_vs_weekday")
+        weather_over_timestamp_plot(single_bikes_data, "weather_over_timestamp")
     except Exception as e:
         logger.error(f"Error: {e}")
+        raise e
 
 
 def lambda_handler(event, context):
