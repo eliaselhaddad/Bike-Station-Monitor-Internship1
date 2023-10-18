@@ -18,6 +18,7 @@ aws-lambda-powertools =  {extras = ["all"],version = "*"}
 #cachetools = "*"
 boto3 = "*"
 requests = "*"
+moto = "^4.2.6"
 
 [tool.poetry.group.buildpipe.dependencies]
 aws-cdk-lib = "2.100.0"
