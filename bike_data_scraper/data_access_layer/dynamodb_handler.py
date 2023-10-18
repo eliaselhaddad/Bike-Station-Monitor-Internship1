@@ -4,7 +4,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 
-class DynamodbHandler:
+class DynamoDbHandler:
     def __init__(self, bike_table_name):
         self.bike_table_name = bike_table_name
         self.dynamodb = boto3.resource("dynamodb")

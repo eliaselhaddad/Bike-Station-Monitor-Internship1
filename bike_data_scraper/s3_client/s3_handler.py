@@ -1,26 +1,12 @@
-import boto3
-
-
-class S3PutInBucketHandler:
-    def __init__(self, bucket_name):
-        self.bucket_name = bucket_name
-        self.s3 = boto3.client("s3")
-
-    def put_in_s3_bucket(self, filename, data_to_save):
-        self.s3.put_object(Bucket=self.bucket_name, Key=filename, Body=data_to_save)
-        return filename
-
-
 from datetime import datetime
 from io import StringIO
-
 import boto3
 import pandas as pd
-from loguru import logger
 
 
 class S3Handler:
-    def __init__(self) -> None:
+    def __init__(self, bucket_name) -> None:
+        self.bucket_name = bucket_name
         self.s3_client = boto3.client("s3")
         self.s3_resource = boto3.resource("s3")
         self.current_date = datetime.now().strftime("%d-%m-%Y")
@@ -44,3 +30,9 @@ class S3Handler:
         obj = self.s3_client.get_object(Bucket=bucket_name, Key=key)
         df = pd.read_csv(obj["Body"])
         return df
+
+    def put_in_s3_bucket(self, filename, data_to_save):
+        self.s3_client.put_object(
+            Bucket=self.bucket_name, Key=filename, Body=data_to_save
+        )
+        return filename

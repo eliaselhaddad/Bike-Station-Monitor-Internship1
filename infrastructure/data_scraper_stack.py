@@ -57,7 +57,7 @@ class DataScraperStack(Stack):
         )
         DataPreprocessed(
             self,
-            f"{stage_name}-DataPrepocessed",
+            f"{stage_name}-DataPreprocessed",
             stage_name=stage_name,
             service_config=service_config,
             lambda_layer=common_layer,
