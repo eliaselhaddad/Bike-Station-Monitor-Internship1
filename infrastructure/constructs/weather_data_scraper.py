@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_events,
     aws_events_targets,
 )
+from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 from constructs import Construct
 
@@ -16,10 +17,15 @@ import os
 
 class WeatherDataScraper(Construct):
     def __init__(
-        self, scope: Construct, id_: str, stage_name: str, service_config: dict
+        self,
+        scope: Construct,
+        id_: str,
+        stage_name: str,
+        service_config: dict,
+        lambda_layer: PythonLayerVersion,
     ) -> None:
         super().__init__(scope, id_)
-
+        self.lambda_layer = lambda_layer
         service_short_name = service_config["service"]["service_short_name"]
         service_name = service_short_name
 
@@ -61,6 +67,7 @@ class WeatherDataScraper(Construct):
             timeout=Duration.seconds(80),
             memory_size=128,
             role=lambda_role,
+            layers=[self.lambda_layer],
         )
         return lambda_function
 
