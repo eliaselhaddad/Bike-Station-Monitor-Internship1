@@ -58,10 +58,8 @@ class WeatherDataScraper(Construct):
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.PYTHON_3_10,
             environment=env_vars,
-            code=aws_lambda.Code.from_asset(
-                os.path.join(cwd, ".build/lambdas/bike_data_scraper/handlers")
-            ),
-            handler="weather_data_scraper.lambda_handler",
+            code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas/")),
+            handler="bike_data_scraper/handlers/weather_data_scraper.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             timeout=Duration.seconds(80),
