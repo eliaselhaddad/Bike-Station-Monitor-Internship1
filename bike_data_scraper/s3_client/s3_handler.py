@@ -13,12 +13,18 @@ class S3Handler:
         self.current_date = datetime.now().strftime("%d-%m-%Y")
 
     def save_dataframe_to_s3(
-        self, df: pd.DataFrame, bucket_name: str, path_name: str, filename: str
+        self,
+        df: pd.DataFrame,
+        bucket_name: str,
+        path_name: str,
+        current_date: str,
+        filename: str,
+        sub_path: str,
     ):
         with StringIO() as csv_buffer:
             df.to_csv(csv_buffer, index=False)
             self.s3_resource.Object(
-                bucket_name, f"{path_name}/{self.current_date}/{filename}.csv"
+                bucket_name, f"{path_name}/{sub_path}/{current_date}/{filename}.csv"
             ).put(Body=csv_buffer.getvalue())
 
     def get_data_from_s3(self, bucket_name: str, key: str) -> pd.DataFrame:

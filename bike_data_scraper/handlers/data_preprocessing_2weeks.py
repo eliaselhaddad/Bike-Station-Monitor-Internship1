@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             weather_data, bikes_data
         )
 
-        df = merge_both_columns({"weather": weather_data, "bikes": bikes_data})
+        df = merge_both_datasets({"weather": weather_data, "bikes": bikes_data})
     except Exception as e:
         logger.error(f"Oops! No data found in dataframe for merging. Error: {e}")
         raise e
@@ -90,7 +90,7 @@ def convert_time_to_more_features(
     return tuple(df_dict.values())
 
 
-def merge_both_columns(data_dict: dict) -> pd.DataFrame:
+def merge_both_datasets(data_dict: dict) -> pd.DataFrame:
     logger.info("Merging weather and bikes datasets on columns: Year, Month, Day, Hour")
     merge_columns = ["Year", "Month", "Day", "Hour"]
 
@@ -109,9 +109,11 @@ def merge_both_columns(data_dict: dict) -> pd.DataFrame:
 def clean_unused_merge_columns(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("Removing unused merge columns")
     df.drop(
-        columns=["Time_of_Day_y", "Minute_y", "Time_of_Day_x"], axis=1, inplace=True
+        columns=["Time_of_Day_y", "Minute_y", "Time_of_Day_x", "timestamp_y"],
+        axis=1,
+        inplace=True,
     )
-    df.rename(columns={"Minute_x": "Minute"}, inplace=False)
+    df.rename(columns={"Minute_x": "Minute", "timestamp_x": "timestamp"}, inplace=True)
     return df
 
 
@@ -139,14 +141,34 @@ def add_total_available_bikes_column(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def get_min_and_max_dates_from_dataframe(df: pd.DataFrame) -> dict:
+    min_date = df["timestamp"].min().strftime("%Y-%m-%d")
+    max_date = df["timestamp"].max().strftime("%Y-%m-%d")
+    return {"min_date": min_date, "max_date": max_date}
+
+
 def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
     try:
         SingleBikes = df[df["stationId"].str.startswith("BIKE")]
         StationaryStations = df[~df["stationId"].str.startswith("BIKE")]
-
-        s3_handler.save_dataframe_to_s3(SingleBikes, bucket, path, "SingleBikes")
+        logger.info(SingleBikes.columns)
+        current_date_singles = get_min_and_max_dates_from_dataframe(SingleBikes)
+        current_date_stations = get_min_and_max_dates_from_dataframe(StationaryStations)
         s3_handler.save_dataframe_to_s3(
-            StationaryStations, bucket, path, "StationaryStations"
+            df=SingleBikes,
+            bucket_name=bucket,
+            path_name=path,
+            sub_path="single_bikes",
+            current_date=f"{current_date_singles['min_date']}-{current_date_singles['max_date']}",
+            filename="SingleBikes",
+        )
+        s3_handler.save_dataframe_to_s3(
+            df=StationaryStations,
+            bucket_name=bucket,
+            path_name=path,
+            sub_path="station_bikes",
+            current_date=f"{current_date_stations['min_date']}-{current_date_stations['max_date']}",
+            filename="StationaryStations",
         )
 
         logger.info(
