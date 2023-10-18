@@ -7,6 +7,7 @@ from infrastructure.constructs.data_scraper import DataScraper
 from infrastructure.constructs.two_weeks_processed_data import DataPreprocessed
 from infrastructure.constructs.step_functions_poc import StepFunctionsPoc
 from infrastructure.constructs.weather_data_scraper import WeatherDataScraper
+from infrastructure.constructs.graphs_data_scraper import GraphsDataScraper
 
 
 class DataScraperStack(Stack):
@@ -32,28 +33,28 @@ class DataScraperStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        DataScraper(
-            self,
-            f"{stage_name}-DataScraper",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_layer=common_layer,
-        )
+        # DataScraper(
+        #     self,
+        #     f"{stage_name}-DataScraper",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_layer=common_layer,
+        # )
 
-        WeatherDataScraper(
-            self,
-            f"{stage_name}-WeatherDataScraper",
-            stage_name=stage_name,
-            service_config=service_config,
-        )
+        # WeatherDataScraper(
+        #     self,
+        #     f"{stage_name}-WeatherDataScraper",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        # )
 
-        CognitoUserPool(
-            self,
-            f"{stage_name}-CognitoUserPool",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_common_layer=common_layer,
-        )
+        # CognitoUserPool(
+        #     self,
+        #     f"{stage_name}-CognitoUserPool",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_common_layer=common_layer,
+        # )
         DataPreprocessed(
             self,
             f"{stage_name}-DataPrepocessed",
@@ -61,9 +62,16 @@ class DataScraperStack(Stack):
             service_config=service_config,
             lambda_layer=common_layer,
         )
-        StepFunctionsPoc(
+        # StepFunctionsPoc(
+        #     self,
+        #     f"{stage_name}-StepFunctionsPoc",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_layer=common_layer,
+        # )
+        GraphsDataScraper(
             self,
-            f"{stage_name}-StepFunctionsPoc",
+            f"{stage_name}-GraphsDataScraper",
             stage_name=stage_name,
             service_config=service_config,
             lambda_layer=common_layer,

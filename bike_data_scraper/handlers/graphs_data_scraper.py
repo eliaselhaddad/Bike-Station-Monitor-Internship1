@@ -2,12 +2,13 @@ from io import StringIO
 import os
 import boto3
 from datetime import datetime
-
+import json
 from loguru import logger
 import pandas as pd
+from bike_data_scraper.s3_client.s3_handler import S3Handler
 
-SOURCE_BUCKET = os.environ.get("SOURCE_BUCKET")
-DESTINATION_BUCKET = os.environ.get("DESTINATION_BUCKET")
+SOURCE_BUCKET = os.environ.get("GRAPHS_SOURCE_BUCKET")
+DESTINATION_BUCKET = os.environ.get("GRAPHS_DESTINATION_BUCKET")
 
 SINGLE_BIKE_DATA = os.environ.get("SINGLE_BIKE_DATA")
 STATION_BIKE_DATA = os.environ.get("STATION_BIKE_DATA")
@@ -15,6 +16,8 @@ STATION_BIKE_DATA = os.environ.get("STATION_BIKE_DATA")
 S3_CLIENT = boto3.client("s3")
 S3_RESOURCE = boto3.resource("s3")
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
+
+s3_handler = S3Handler()
 
 
 def get_weather_data(bucket: str, key: str) -> pd.DataFrame:
@@ -136,9 +139,33 @@ def save_to_s3(df: pd.DataFrame, bucket: str, path: str, filename: str) -> None:
     csv_buffer.close()
 
 
+def save_data_as_json(
+    data: dict,
+    bucket_name: str,
+    path_name: str,
+    sub_path: str,
+    current_date: str,
+) -> None:
+    logger.info("Saving graph json data to S3")
+    s3 = boto3.client("s3")
+    s3.put_object(
+        Body=json.dumps(data),
+        Bucket=bucket_name,
+        Key=f"{path_name}/{sub_path}/{current_date}/data.json",
+    )
+
+
+def get_min_and_max_dates_from_dataframe(df: pd.DataFrame) -> dict:
+    min_date = df["timestamp"].min().strftime("%Y-%m-%d")
+    max_date = df["timestamp"].max().strftime("%Y-%m-%d")
+    return {"min_date": min_date, "max_date": max_date}
+
+
 def process_station_data():
     try:
         station_bikes_data = get_weather_data(SOURCE_BUCKET, STATION_BIKE_DATA)
+        current_date = get_min_and_max_dates_from_dataframe(station_bikes_data)
+
         if station_bikes_data.empty:
             raise Exception("No station data found in weather or bike buckets")
 
@@ -165,6 +192,28 @@ def process_station_data():
         weather_over_timestamp = weather_over_timestamp_plot(
             station_bikes_data, "weather_over_timestamp"
         )
+
+        results = {}
+        results[
+            "number_of_bikes_available_stations"
+        ] = number_of_bikes_available_stations
+        results["warmest_temperature_stations"] = warmest_temperature_stations
+        results["coldest_temperature_stations"] = coldest_temperature_stations
+        results["coldest_day_stations"] = coldest_day_stations
+        results["warmest_day_stations"] = warmest_day_stations
+        results["day_with_most_used_bikes_stations"] = day_with_most_used_bikes_stations
+        results["correlation_matrix"] = correlation_matrix
+        results["weekend_vs_weekday"] = weekend_vs_weekday
+        results["weather_over_timestamp"] = weather_over_timestamp
+
+        save_data_as_json(
+            data=results,
+            bucket_name=DESTINATION_BUCKET,
+            path_name="graphs_data",
+            sub_path="station_bikes",
+            current_date=f"{current_date['min_date']}-{current_date['max_date']}",
+        )
+
     except Exception as e:
         logger.error(f"Error: {e}")
         raise e
@@ -173,6 +222,7 @@ def process_station_data():
 def process_single_data():
     try:
         single_bikes_data = get_weather_data(SOURCE_BUCKET, SINGLE_BIKE_DATA)
+        current_date = get_min_and_max_dates_from_dataframe(single_bikes_data)
         if single_bikes_data.empty:
             raise Exception("No single data found in weather or bike buckets")
 
@@ -190,9 +240,34 @@ def process_single_data():
         day_with_most_used_bikes_singles = day_with_most_used_bikes(
             single_bikes_data, "day_with_most_used_bikes"
         )
-        correlation_matrix_plot(single_bikes_data, "correlation_matrix")
-        weekend_vs_weekday_plot(single_bikes_data, "weekend_vs_weekday")
-        weather_over_timestamp_plot(single_bikes_data, "weather_over_timestamp")
+        correlation_matrix = correlation_matrix_plot(
+            single_bikes_data, "correlation_matrix"
+        )
+        weekend_vs_weekday = weekend_vs_weekday_plot(
+            single_bikes_data, "weekend_vs_weekday"
+        )
+        weather_over_timestamp = weather_over_timestamp_plot(
+            single_bikes_data, "weather_over_timestamp"
+        )
+
+        results = {}
+        results["number_of_bikes_available_singles"] = number_of_bikes_available_singles
+        results["warmest_temperature_singles"] = warmest_temperature_singles
+        results["coldest_temperature_singles"] = coldest_temperature_singles
+        results["coldest_day_singles"] = coldest_day_singles
+        results["warmest_day_singles"] = warmest_day_singles
+        results["day_with_most_used_bikes_singles"] = day_with_most_used_bikes_singles
+        results["correlation_matrix"] = correlation_matrix
+        results["weekend_vs_weekday"] = weekend_vs_weekday
+        results["weather_over_timestamp"] = weather_over_timestamp
+
+        save_data_as_json(
+            data=results,
+            bucket_name=DESTINATION_BUCKET,
+            path_name="graphs_data",
+            sub_path="single_bikes",
+            current_date=f"{current_date['min_date']}-{current_date['max_date']}",
+        )
     except Exception as e:
         logger.error(f"Error: {e}")
         raise e
