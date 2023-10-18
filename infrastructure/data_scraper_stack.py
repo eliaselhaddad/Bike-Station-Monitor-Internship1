@@ -33,28 +33,28 @@ class DataScraperStack(Stack):
             removal_policy=RemovalPolicy.DESTROY,
         )
 
-        # DataScraper(
-        #     self,
-        #     f"{stage_name}-DataScraper",
-        #     stage_name=stage_name,
-        #     service_config=service_config,
-        #     lambda_layer=common_layer,
-        # )
+        DataScraper(
+            self,
+            f"{stage_name}-DataScraper",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
 
-        # WeatherDataScraper(
-        #     self,
-        #     f"{stage_name}-WeatherDataScraper",
-        #     stage_name=stage_name,
-        #     service_config=service_config,
-        # )
+        WeatherDataScraper(
+            self,
+            f"{stage_name}-WeatherDataScraper",
+            stage_name=stage_name,
+            service_config=service_config,
+        )
 
-        # CognitoUserPool(
-        #     self,
-        #     f"{stage_name}-CognitoUserPool",
-        #     stage_name=stage_name,
-        #     service_config=service_config,
-        #     lambda_common_layer=common_layer,
-        # )
+        CognitoUserPool(
+            self,
+            f"{stage_name}-CognitoUserPool",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_common_layer=common_layer,
+        )
         DataPreprocessed(
             self,
             f"{stage_name}-DataPrepocessed",
@@ -62,13 +62,13 @@ class DataScraperStack(Stack):
             service_config=service_config,
             lambda_layer=common_layer,
         )
-        # StepFunctionsPoc(
-        #     self,
-        #     f"{stage_name}-StepFunctionsPoc",
-        #     stage_name=stage_name,
-        #     service_config=service_config,
-        #     lambda_layer=common_layer,
-        # )
+        StepFunctionsPoc(
+            self,
+            f"{stage_name}-StepFunctionsPoc",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
         GraphsDataScraper(
             self,
             f"{stage_name}-GraphsDataScraper",
