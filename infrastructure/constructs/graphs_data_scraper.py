@@ -64,14 +64,21 @@ class ChartsDataScraper(Construct):
 
         return lambda_function
 
-    def _create_env_vars(self, stage_name: str, service_name: str):
+    def _create_env_vars(
+        self,
+        stage_name: str,
+        service_name: str,
+        s3_source_bucket: str,
+        s3_destination_bucket: str,
+    ):
         return {
             "STAGE_NAME": stage_name,
             "SERVICE_NAME": service_name,
-            "SOURCE_BUCKET": self.source_bucket.bucket_name,
-            "DESTINATION_BUCKET": self.destination_bucket.bucket_name,
+            "SOURCE_BUCKET": s3_source_bucket,
+            "S3_DESTINATION_BUCKET": s3_destination_bucket,
             "STATION_BIKE_DATA": "station-bike-data",
             "SINGLE_BIKE_DATA": "single-bike-data",
+            "LOG_LEVEL": "DEBUG",
         }
 
     def _build_lambda_role(self, role_name: str) -> aws_iam.Role:
