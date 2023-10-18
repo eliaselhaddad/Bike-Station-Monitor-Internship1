@@ -112,6 +112,7 @@ class DataScraper(Construct):
             removal_policy=aws_cdk.RemovalPolicy.DESTROY,
             encryption=aws_dynamodb.TableEncryption.DEFAULT,
             billing_mode=aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            deletion_protection=True,
         )
 
     def _build_lambda_role(self, role_name: str) -> aws_iam.Role:
