@@ -3,7 +3,13 @@ import csv
 from datetime import datetime, timedelta
 from io import StringIO
 import os
+import sys
 
+from bike_data_scraper.s3_client.s3_handler import S3PutInBucketHandler
+from bike_data_scraper.data_access_layer.dynamodb_handler import DynamoDBHandler
+from bike_data_scraper.csv_client.csv_handler import CSVHandler
+
+# env vars
 dynamodb = boto3.resource("dynamodb")
 s3 = boto3.client("s3")
 table_name = os.environ["BIKE_TABLE_NAME"]
@@ -13,53 +19,16 @@ stage_name = os.environ.get("STAGE_NAME")
 service_short_name = os.environ.get("SERVICE_SHORT_NAME")
 
 
-def getBikeDataLastTwoWeeks():
-    one_day_ago = datetime.now() - datetime.timedelta(days=1)
-    one_day_ago_date = one_day_ago.date()
-    two_weeks_ago = one_day_ago_date - datetime.timedelta(days=14)
+# runs every function
+def lambda_handler(event, context):
+    items = DynamoDBHandler(table_name).get_bike_data_last_two_weeks()
 
-    response = table.scan(
-        FilterExpression="begins_with(#ts, :two_weeks_ago) OR begins_with(#ts, :one_day_ago)",
-        ExpressionAttributeNames={"#ts": "timestamp"},
-        ExpressionAttributeValues={
-            ":two_weeks_ago": two_weeks_ago.isoformat(),
-            ":one_day_ago": one_day_ago_date.isoformat(),
-        },
-    )
+    columns = items[0].keys()
+    csv_data = CSVHandler.convert_to_csv(columns, items)
 
-    items = response["Items"] if "Items" in response and response["Items"] else []
-    if not items:
-        raise Exception("No items found in the last two weeks (from yesterday)")
-
-    return items
-
-
-def ConvertToCSV(items):
-    csv_file = StringIO()
-    csv_writer = csv.DictWriter(csv_file, fieldnames=items[0].keys())
-    csv_writer.writeheader()
-
-    for item in items:
-        csv_writer.writerow(item)
-
-    csv_data = csv_file.getvalue()
-    csv_file.close()
-
-    return csv_data
-
-
-def PutInS3Bucket(csv_data):
     one_day_ago = datetime.now() - datetime.timedelta(days=1)
     s3_key = f"bikes_two_weeks_{one_day_ago.isoformat()}.csv"
-    s3.put_object(Bucket=bucket_name, Key=s3_key, Body=csv_data)
-
-    return s3_key
-
-
-def lambda_handler(event, context):
-    items = getBikeDataLastTwoWeeks()
-    csv_data = ConvertToCSV(items)
-    s3_key = PutInS3Bucket(csv_data)
+    S3PutInBucketHandler.put_in_s3_bucket(s3_key, csv_data)
 
     return {
         "message": f"Data from the last two weeks saved to s3://{bucket_name}/{s3_key}"

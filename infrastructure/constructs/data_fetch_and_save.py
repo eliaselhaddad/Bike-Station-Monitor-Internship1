@@ -33,7 +33,6 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
             service_name=service_name,
             service_short_name=service_short_name,
         )
-        bucket_name = "bikedatalake"
 
         self.data_fetch_and_save_lambda = self._build_lambda(
             lambda_name=lambda_name,
@@ -58,7 +57,10 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
 
         lambda_role.add_to_policy(
             aws_iam.PolicyStatement(
-                actions=["s3:PutObject"], resources=[f"arn:aws:s3:::{bucket_name}"]
+                actions=["s3:PutObject"],
+                resources=[
+                    f"arn:aws:s3:::{stage_name}-{service_short_name}-raw-data-weather-and-bikes"
+                ],
             )
         )
 
@@ -76,10 +78,8 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.PYTHON_3_10,
             environment=env_vars,
-            code=aws_lambda.Code.from_asset(
-                os.path.join(cwd, "bike_data_scraper/handlers")
-            ),
-            handler="data_fetch_and_save_lambda.lambda_handler",
+            code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas")),
+            handler="bike_data_scraper/handlers/data_fetch_and_save_lambda.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             timeout=Duration.seconds(200),
