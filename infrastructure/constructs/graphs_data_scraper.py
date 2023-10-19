@@ -27,7 +27,6 @@ class GraphsDataScraper(Construct):
 
         self.lambda_layer = lambda_layer
         s3_name_prefix = f"{stage_name}-{service_short_name}"
-        # self.s3_bucket = self._create_s3_bucket(self, s3_name_prefix)
 
         # lambda setup
         lambda_name = f"{stage_name}-{service_short_name}-graphs-data-scraper"
@@ -65,15 +64,6 @@ class GraphsDataScraper(Construct):
             "LOG_LEVEL": "DEBUG",
         }
 
-    # def _create_s3_bucket(self, scope: Construct, s3_name_prefix: str) -> aws_s3.Bucket:
-    #     return aws_s3.Bucket(
-    #         scope,
-    #         f"{s3_name_prefix}-bucket",
-    #         bucket_name=f"{s3_name_prefix}-bucket".lower(),
-    #         removal_policy=aws_cdk.RemovalPolicy.DESTROY,
-    #         auto_delete_objects=True,
-    #     )
-
     def _build_lambda(
         self,
         lambda_name: str,
@@ -97,8 +87,6 @@ class GraphsDataScraper(Construct):
             memory_size=1024,
             layers=[self.lambda_layer],
         )
-
-        return lambda_function
 
     def _build_lambda_role(self, role_name: str) -> aws_iam.Role:
         return aws_iam.Role(

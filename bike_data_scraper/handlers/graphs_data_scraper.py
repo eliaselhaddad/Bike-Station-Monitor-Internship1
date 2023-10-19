@@ -20,16 +20,6 @@ CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 s3_handler = S3Handler()
 
 
-def get_weather_data(bucket: str, key: str) -> pd.DataFrame:
-    logger.info("Getting weather and bike data from S3")
-    weather_data = S3_CLIENT.get_object(
-        Bucket=bucket,
-        Key=key,
-    )
-    weather_data = pd.read_csv(weather_data["Body"])
-    return weather_data
-
-
 def number_of_bikes_available(df: pd.DataFrame) -> str:
     try:
         logger.info("Calculating number of bikes available")
@@ -190,8 +180,12 @@ def save_results(results, data_sub_folder: str, sub_path: str):
 
 def lambda_handler(event, context):
     try:
-        station_bikes_data = get_weather_data(SOURCE_BUCKET, STATION_BIKE_DATA_KEY)
-        single_bikes_data = get_weather_data(SOURCE_BUCKET, SINGLE_BIKE_DATA_KEY)
+        station_bikes_data = s3_handler.get_data_from_s3(
+            SOURCE_BUCKET, STATION_BIKE_DATA_KEY
+        )
+        single_bikes_data = s3_handler.get_data_from_s3(
+            SOURCE_BUCKET, SINGLE_BIKE_DATA_KEY
+        )
 
         current_date = get_min_and_max_dates_from_dataframe(station_bikes_data)
         date = f"{current_date['min_date']}-{current_date['max_date']}"
