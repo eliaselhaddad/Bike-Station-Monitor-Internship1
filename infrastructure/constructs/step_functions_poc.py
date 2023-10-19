@@ -52,19 +52,19 @@ class StepFunctionsPoc(Construct):
             stage_name=stage_name,
             lambda_name=lambda_name,
             cwd=cwd,
-            lambda_path="first_lambda.lambda_handler",
+            lambda_path="bike_data_scraper/handlers/first_lambda.lambda_handler",
         )
         self.second_parallel_lambda = self._build_lambda(
             stage_name=stage_name,
             lambda_name=lambda_name2,
             cwd=cwd,
-            lambda_path="second_lambda.lambda_handler",
+            lambda_path="bike_data_scraper/handlers/second_lambda.lambda_handler",
         )
         self.finishing_lambda = self._build_lambda(
             stage_name=stage_name,
             lambda_name=lambda_name3,
             cwd=cwd,
-            lambda_path="third_lambda.lambda_handler",
+            lambda_path="bike_data_scraper/handlers/third_lambda.lambda_handler",
         )
         first_parallel_lambda_task = tasks.LambdaInvoke(
             self, id="StartingParallelTask", lambda_function=self.first_parallel_lambda
@@ -99,9 +99,7 @@ class StepFunctionsPoc(Construct):
             lambda_name,
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.PYTHON_3_10,
-            code=aws_lambda.Code.from_asset(
-                os.path.join(cwd, ".build/lambdas/bike_data_scraper/handlers")
-            ),
+            code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas/")),
             handler=lambda_path,
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,

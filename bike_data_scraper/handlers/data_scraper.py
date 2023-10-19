@@ -30,6 +30,6 @@ def lambda_handler(event, context):
 
             ddb.put_item(**params)
 
-        return f"Added {len(stations)} stations to DynamoDB."
+        print(f"Added {len(stations)} stations to DynamoDB.")
     except Exception as e:
         raise e

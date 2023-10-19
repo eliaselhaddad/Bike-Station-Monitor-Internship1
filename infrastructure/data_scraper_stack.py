@@ -4,6 +4,7 @@ from constructs import Construct
 
 from infrastructure.constructs.cognito_user_pool import CognitoUserPool
 from infrastructure.constructs.data_scraper import DataScraper
+from infrastructure.constructs.data_fetch_and_save import SaveTwoWeeksBikeDataToCsv
 from infrastructure.constructs.two_weeks_processed_data import DataPreprocessed
 from infrastructure.constructs.step_functions_poc import StepFunctionsPoc
 from infrastructure.constructs.weather_data_scraper import WeatherDataScraper
@@ -46,6 +47,7 @@ class DataScraperStack(Stack):
             f"{stage_name}-WeatherDataScraper",
             stage_name=stage_name,
             service_config=service_config,
+            lambda_layer=common_layer,
         )
 
         CognitoUserPool(
@@ -57,7 +59,7 @@ class DataScraperStack(Stack):
         )
         DataPreprocessed(
             self,
-            f"{stage_name}-DataPrepocessed",
+            f"{stage_name}-DataPreprocessed",
             stage_name=stage_name,
             service_config=service_config,
             lambda_layer=common_layer,
@@ -72,6 +74,14 @@ class DataScraperStack(Stack):
         GraphsDataScraper(
             self,
             f"{stage_name}-GraphsDataScraper",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
+
+        SaveTwoWeeksBikeDataToCsv(
+            self,
+            f"{stage_name}-SaveTwoWeeksBikeDataToCsv",
             stage_name=stage_name,
             service_config=service_config,
             lambda_layer=common_layer,
