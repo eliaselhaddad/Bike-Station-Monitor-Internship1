@@ -64,7 +64,7 @@ def fetch_weather_data(url: str, api_endpoint: str) -> dict:
         try:
             error_message = response.read().decode()
             print(f"Failed to retrieve weather data: {error_message}")
-            return None
+            raise Exception(f"Failed to retrieve weather data: {error_message}")
         finally:
             conn.close()
 
