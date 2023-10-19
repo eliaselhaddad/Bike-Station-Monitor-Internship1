@@ -4,7 +4,7 @@ import os
 
 from bike_data_scraper.s3_client.s3_handler import S3Handler
 from bike_data_scraper.data_access_layer.dynamodb_handler import DynamoDbHandler
-from bike_data_scraper.csv_client.csv_handler import CSVHandler
+from bike_data_scraper.csv_client.csv_handler import UniversalCSVConverter
 
 dynamodb = boto3.resource("dynamodb")
 s3 = boto3.client("s3")
@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     items = DynamoDbHandler(table_name).get_bike_data_last_two_weeks()
 
     columns = items[0].keys()
-    csv_data = CSVHandler.convert_to_csv(columns, items)
+    csv_data = UniversalCSVConverter(columns=columns, data=items).to_csv()
 
     one_day_ago = datetime.now() - timedelta(days=1)
     s3_key = f"bikes_two_weeks_{one_day_ago.isoformat()}.csv"
