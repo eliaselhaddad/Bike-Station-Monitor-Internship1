@@ -42,21 +42,21 @@ class DataScraperStack(Stack):
             lambda_layer=common_layer,
         )
 
-        WeatherDataScraper(
-            self,
-            f"{stage_name}-WeatherDataScraper",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_layer=common_layer,
-        )
+        # WeatherDataScraper(
+        #     self,
+        #     f"{stage_name}-WeatherDataScraper",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_layer=common_layer,
+        # )
 
-        CognitoUserPool(
-            self,
-            f"{stage_name}-CognitoUserPool",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_common_layer=common_layer,
-        )
+        # CognitoUserPool(
+        #     self,
+        #     f"{stage_name}-CognitoUserPool",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_common_layer=common_layer,
+        # )
         DataPreprocessed(
             self,
             f"{stage_name}-DataPreprocessed",
@@ -64,13 +64,13 @@ class DataScraperStack(Stack):
             service_config=service_config,
             lambda_layer=common_layer,
         )
-        StepFunctionsPoc(
-            self,
-            f"{stage_name}-StepFunctionsPoc",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_layer=common_layer,
-        )
+        # StepFunctionsPoc(
+        #     self,
+        #     f"{stage_name}-StepFunctionsPoc",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_layer=common_layer,
+        # )
         GraphsDataScraper(
             self,
             f"{stage_name}-GraphsDataScraper",
@@ -79,10 +79,10 @@ class DataScraperStack(Stack):
             lambda_layer=common_layer,
         )
 
-        SaveTwoWeeksBikeDataToCsv(
-            self,
-            f"{stage_name}-SaveTwoWeeksBikeDataToCsv",
-            stage_name=stage_name,
-            service_config=service_config,
-            lambda_layer=common_layer,
-        )
+        # SaveTwoWeeksBikeDataToCsv(
+        #     self,
+        #     f"{stage_name}-SaveTwoWeeksBikeDataToCsv",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_layer=common_layer,
+        # )

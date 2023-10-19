@@ -2,11 +2,12 @@ from datetime import datetime
 from io import StringIO
 import boto3
 import pandas as pd
+from loguru import logger
+import json
 
 
 class S3Handler:
-    def __init__(self, bucket_name) -> None:
-        self.bucket_name = bucket_name
+    def __init__(self) -> None:
         self.s3_client = boto3.client("s3")
         self.s3_resource = boto3.resource("s3")
         self.current_date = datetime.now().strftime("%d-%m-%Y")
@@ -31,8 +32,29 @@ class S3Handler:
         df = pd.read_csv(obj["Body"])
         return df
 
-    def put_in_s3_bucket(self, filename, data_to_save):
-        self.s3_client.put_object(
-            Bucket=self.bucket_name, Key=filename, Body=data_to_save
-        )
+    def put_in_s3_bucket(self, filename: str, data_to_save, bucket_name: str):
+        self.s3_client.put_object(Bucket=bucket_name, Key=filename, Body=data_to_save)
         return filename
+
+    def save_data_as_json(
+        self,
+        data: dict,
+        bucket_name: str,
+        path_name: str,
+        sub_path: str,
+        current_date: str,
+    ) -> None:
+        logger.info("Saving graph json data to S3")
+
+        for key, value in data.items():
+            if isinstance(value, pd.DataFrame):
+                for col in value.columns:
+                    if pd.api.types.is_datetime64_any_dtype(value[col]) == True:
+                        value[col] = value[col].astype(str)
+                data[key] = value.to_dict(orient="records")
+
+        self.s3_client.put_object(
+            Body=json.dumps(data),
+            Bucket=bucket_name,
+            Key=f"{path_name}/{sub_path}/{current_date}/data.json",
+        )

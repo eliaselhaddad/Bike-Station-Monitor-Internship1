@@ -23,7 +23,9 @@ def lambda_handler(event, context):
 
     one_day_ago = datetime.now() - timedelta(days=1)
     s3_key = f"bikes_two_weeks_{one_day_ago.isoformat()}.csv"
-    S3Handler(bucket_name).put_in_s3_bucket(filename=s3_key, data_to_save=csv_data)
+    S3Handler().put_in_s3_bucket(
+        filename=s3_key, data_to_save=csv_data, bucket_name=bucket_name
+    )
 
     return {
         "message": f"Data from the last two weeks saved to s3://{bucket_name}/{s3_key}"

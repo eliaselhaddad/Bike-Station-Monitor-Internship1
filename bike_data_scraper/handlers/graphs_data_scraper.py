@@ -6,12 +6,13 @@ import json
 from loguru import logger
 import pandas as pd
 from bike_data_scraper.s3_client.s3_handler import S3Handler
+from bike_data_scraper.libs.functions import get_min_and_max_dates_from_dataframe
 
 SOURCE_BUCKET = os.environ.get("GRAPHS_SOURCE_BUCKET")
 DESTINATION_BUCKET = os.environ.get("GRAPHS_DESTINATION_BUCKET")
 
-SINGLE_BIKE_DATA = os.environ.get("SINGLE_BIKE_DATA")
-STATION_BIKE_DATA = os.environ.get("STATION_BIKE_DATA")
+SINGLE_BIKE_DATA_KEY = os.environ.get("SINGLE_BIKE_DATA")
+STATION_BIKE_DATA_KEY = os.environ.get("STATION_BIKE_DATA")
 
 S3_CLIENT = boto3.client("s3")
 S3_RESOURCE = boto3.resource("s3")
@@ -92,8 +93,7 @@ def correlation_matrix_plot(df: pd.DataFrame, dataframe_name: str) -> object:
         "IsWeekend",
     ]
     correlation_matrix = df[corr_columns].corr()
-    # to csv
-    correlation_matrix.to_csv(f"{dataframe_name}_correlation_matrix.csv")
+    correlation_matrix.to_csv(f"/tmp/{dataframe_name}_correlation_matrix.csv")
     return correlation_matrix
 
 
@@ -106,7 +106,7 @@ def weekend_vs_weekday_plot(df: pd.DataFrame, dataframe_name: str) -> object:
         {0: "Weekdays", 1: "Weekend"}
     )
     average_number_of_bikes.to_csv(
-        f"{dataframe_name}_WeekendVsWeekdaysSingles.csv", index=False
+        f"/tmp/{dataframe_name}_WeekendVsWeekdaysSingles.csv", index=False
     )
     return average_number_of_bikes
 
@@ -125,45 +125,16 @@ def weather_over_timestamp_plot(df: pd.DataFrame, dataframe_name: str) -> object
         )
         .reset_index()
     )
-    grouped_df.to_csv(f"{dataframe_name}_WeatherOverTimeStations.csv", index=False)
+    grouped_df.to_csv(f"/tmp/{dataframe_name}_WeatherOverTimeStations.csv", index=False)
     return grouped_df
 
 
-def save_to_s3(df: pd.DataFrame, bucket: str, path: str, filename: str) -> None:
-    logger.info("Saving graph data to S3")
-    csv_buffer = StringIO()
-    df.to_csv(csv_buffer, index=False)
-    S3_RESOURCE.Object(bucket, f"{path}/{CURRENT_DATE}/{filename}/.csv").put(
-        Body=csv_buffer.getvalue()
-    )
-    csv_buffer.close()
-
-
-def save_data_as_json(
-    data: dict,
-    bucket_name: str,
-    path_name: str,
-    sub_path: str,
-    current_date: str,
-) -> None:
-    logger.info("Saving graph json data to S3")
-    s3 = boto3.client("s3")
-    s3.put_object(
-        Body=json.dumps(data),
-        Bucket=bucket_name,
-        Key=f"{path_name}/{sub_path}/{current_date}/data.json",
-    )
-
-
-def get_min_and_max_dates_from_dataframe(df: pd.DataFrame) -> dict:
-    min_date = df["timestamp"].min().strftime("%Y-%m-%d")
-    max_date = df["timestamp"].max().strftime("%Y-%m-%d")
-    return {"min_date": min_date, "max_date": max_date}
-
-
+# def calculate_metrics(bike_data):
+#     metrics = {}
+#     metrics['number_of_bikes_available'] = number_of_bikes_available(bike_data, )
 def process_station_data():
     try:
-        station_bikes_data = get_weather_data(SOURCE_BUCKET, STATION_BIKE_DATA)
+        station_bikes_data = get_weather_data(SOURCE_BUCKET, STATION_BIKE_DATA_KEY)
         current_date = get_min_and_max_dates_from_dataframe(station_bikes_data)
 
         if station_bikes_data.empty:
@@ -206,7 +177,7 @@ def process_station_data():
         results["weekend_vs_weekday"] = weekend_vs_weekday
         results["weather_over_timestamp"] = weather_over_timestamp
 
-        save_data_as_json(
+        s3_handler.save_data_as_json(
             data=results,
             bucket_name=DESTINATION_BUCKET,
             path_name="graphs_data",
@@ -221,7 +192,7 @@ def process_station_data():
 
 def process_single_data():
     try:
-        single_bikes_data = get_weather_data(SOURCE_BUCKET, SINGLE_BIKE_DATA)
+        single_bikes_data = get_weather_data(SOURCE_BUCKET, SINGLE_BIKE_DATA_KEY)
         current_date = get_min_and_max_dates_from_dataframe(single_bikes_data)
         if single_bikes_data.empty:
             raise Exception("No single data found in weather or bike buckets")
@@ -261,7 +232,7 @@ def process_single_data():
         results["weekend_vs_weekday"] = weekend_vs_weekday
         results["weather_over_timestamp"] = weather_over_timestamp
 
-        save_data_as_json(
+        s3_handler.save_data_as_json(
             data=results,
             bucket_name=DESTINATION_BUCKET,
             path_name="graphs_data",
