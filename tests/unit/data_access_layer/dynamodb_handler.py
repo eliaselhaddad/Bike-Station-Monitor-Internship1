@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta, date
 import boto3
 import pytest
 import moto
-from datetime import datetime
+from freezegun import freeze_time
 
 from bike_data_scraper.data_access_layer.dynamodb_handler import DynamoDbHandler
 
@@ -72,15 +73,25 @@ def data_table_with_transactions(data_table):
 
 
 def test_get_all_bike_data(data_table_with_transactions):
+    # ARRANGE
     dynamodb_handler = DynamoDbHandler(TABLE_NAME)
+
+    # ACT
     response = dynamodb_handler.get_all_bike_data()
+
+    # ASSERT
     assert response[0]["AvailableBikes"] == "1"
     assert len(response) == 4
 
 
+@freeze_time("2023-10-20 00:00:00")
 def test_get_bike_data_last_two_weeks(data_table_with_transactions):
+    # ARRANGE
     dynamodb_handler = DynamoDbHandler(TABLE_NAME)
-    print(datetime.now())
-    response = dynamodb_handler.get_bike_data_last_two_weeks_from_datetime()
-    # assert response[0]["AvailableBikes"] == "2"
-    assert len(response) == 3
+    # ACT
+    response = dynamodb_handler.get_bike_data_last_two_weeks_from_datetime(
+        datetime.now()
+    )
+    # ASSERT
+    assert response[0]["AvailableBikes"] == "3"
+    assert len(response) == 4

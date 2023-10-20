@@ -16,8 +16,8 @@ class DynamoDbHandler:
 
         response = self.bike_table.scan(
             Select="ALL_ATTRIBUTES",
-            FilterExpression=Attr("timestamp").gte("2023-09-25")
-            & Attr("timestamp").lt("2023-10-19"),
+            FilterExpression=Attr("timestamp").gte(f"{two_weeks_ago}")
+            & Attr("timestamp").lt(f"{from_date}"),
         )
 
         print(f"response: {response['Items']}")
