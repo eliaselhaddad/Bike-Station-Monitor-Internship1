@@ -1,8 +1,21 @@
-class CsvHandler:
+import csv
+from io import StringIO
+
+
+class CSVHandler:
     def __init__(self):
-        # do we need to do something here? Maybe instantiate something.. :)
+        pass
 
-        def convert_to_csv(self, data: [], columns: []):
-            str  # what are we returning? Add it here!
+    @staticmethod
+    def convert_to_csv(columns, data):
+        csv_file = StringIO()
+        csv_writer = csv.DictWriter(csv_file, fieldnames=columns)
+        csv_writer.writeheader()
 
-        # do convertion and return csv
+        for item in data:
+            csv_writer.writerow(item)
+
+        csv_data = csv_file.getvalue()
+        csv_file.close()
+
+        return csv_data

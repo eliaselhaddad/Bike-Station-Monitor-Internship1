@@ -1,9 +1,5 @@
 import os
 from datetime import datetime
-from io import StringIO
-import sys
-
-import boto3
 import pandas as pd
 from loguru import logger
 

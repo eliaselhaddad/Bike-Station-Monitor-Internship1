@@ -3,10 +3,9 @@ from aws_cdk import (
     aws_lambda,
     aws_iam,
     Duration,
-    aws_events,
-    aws_events_targets,
     aws_s3,
 )
+from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 from constructs import Construct
 
@@ -21,7 +20,7 @@ class DataPreprocessed(Construct):
         id_: str,
         stage_name: str,
         service_config: dict,
-        lambda_layer: aws_lambda.LayerVersion,
+        lambda_layer: PythonLayerVersion,
     ) -> None:
         super().__init__(scope, id_)
 
