@@ -5,8 +5,7 @@ import pandas as pd
 
 
 class S3Handler:
-    def __init__(self, bucket_name) -> None:
-        self.bucket_name = bucket_name
+    def __init__(self) -> None:
         self.s3_client = boto3.client("s3")
         self.s3_resource = boto3.resource("s3")
         self.current_date = datetime.now().strftime("%d-%m-%Y")
