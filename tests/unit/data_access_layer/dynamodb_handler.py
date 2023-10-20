@@ -4,7 +4,7 @@ import pytest
 import moto
 from freezegun import freeze_time
 
-from bike_data_scraper.data_access_layer.dynamodb_handler import DynamoDbHandler
+from bike_data_scraper.data_access_layer.dynamodb_handler import BikeDataDynamoDbHandler
 
 TABLE_NAME = "demo-dscrap-bike-data-table"
 
@@ -72,22 +72,10 @@ def data_table_with_transactions(data_table):
         table.put_item(Item=tx)
 
 
-def test_get_all_bike_data(data_table_with_transactions):
-    # ARRANGE
-    dynamodb_handler = DynamoDbHandler(TABLE_NAME)
-
-    # ACT
-    response = dynamodb_handler.get_all_bike_data()
-
-    # ASSERT
-    assert response[0]["AvailableBikes"] == "1"
-    assert len(response) == 4
-
-
 @freeze_time("2023-10-20 00:00:00")
 def test_get_bike_data_last_two_weeks(data_table_with_transactions):
     # ARRANGE
-    dynamodb_handler = DynamoDbHandler(TABLE_NAME)
+    dynamodb_handler = BikeDataDynamoDbHandler(TABLE_NAME)
     # ACT
     response = dynamodb_handler.get_bike_data_last_two_weeks_from_datetime(
         datetime.now()
@@ -95,3 +83,16 @@ def test_get_bike_data_last_two_weeks(data_table_with_transactions):
     # ASSERT
     assert response[0]["AvailableBikes"] == "3"
     assert len(response) == 4
+
+
+@freeze_time("2023-09-26 00:00:00")
+def test_get_bike_data_last_two_weeks(data_table_with_transactions):
+    # ARRANGE
+    dynamodb_handler = BikeDataDynamoDbHandler(TABLE_NAME)
+    # ACT
+    response = dynamodb_handler.get_bike_data_last_two_weeks_from_datetime(
+        datetime.now()
+    )
+    # ASSERT
+    assert response[0]["AvailableBikes"] == "1"
+    assert len(response) == 1

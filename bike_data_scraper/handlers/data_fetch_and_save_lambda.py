@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import os
 
 from bike_data_scraper.s3_client.s3_handler import S3Handler
-from bike_data_scraper.data_access_layer.dynamodb_handler import DynamoDbHandler
+from bike_data_scraper.data_access_layer.dynamodb_handler import BikeDataDynamoDbHandler
 from bike_data_scraper.csv_client.csv_handler import UniversalCSVConverter
 
 dynamodb = boto3.resource("dynamodb")
@@ -16,7 +16,9 @@ service_short_name = os.environ.get("SERVICE_SHORT_NAME")
 
 
 def lambda_handler(event, context):
-    items = DynamoDbHandler(table_name).get_bike_data_last_two_weeks_from_datetime()
+    items = BikeDataDynamoDbHandler(
+        table_name
+    ).get_bike_data_last_two_weeks_from_datetime()
 
     columns = items[0].keys()
     csv_data = UniversalCSVConverter(columns=columns, data=items).to_csv()

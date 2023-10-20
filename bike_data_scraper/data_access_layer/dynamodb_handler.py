@@ -1,10 +1,10 @@
 from datetime import timedelta, datetime
 
 import boto3
-from boto3.dynamodb.conditions import Key, Attr, Between, BeginsWith
+from boto3.dynamodb.conditions import Attr
 
 
-class DynamoDbHandler:
+class BikeDataDynamoDbHandler:
     def __init__(self, bike_table_name):
         self.bike_table_name = bike_table_name
         self.dynamodb = boto3.resource("dynamodb")
@@ -20,8 +20,6 @@ class DynamoDbHandler:
             & Attr("timestamp").lt(f"{from_date}"),
         )
 
-        print(f"response: {response['Items']}")
-        print(f"response length: {len(response['Items'])}")
         if not response["Items"]:
             return {"message": "No items found in DynamoDB for the last two weeks."}
 
@@ -35,14 +33,11 @@ class DynamoDbHandler:
 
         return bikes
 
-    def get_all_bike_data(self):
-        response = self.bike_table.scan()
-        bikes = response["Items"]
+    def create_bike_data_item(self, item: dict):
+        self.bike_table.put_item(Item=item)
 
-        while "LastEvaluatedKey" in response:
-            response = self.bike_table.scan(
-                ExclusiveStartKey=response["LastEvaluatedKey"]
-            )
-            bikes.extend(response["Items"])
-
-        return bikes
+    @staticmethod
+    def create_dynamodb_item(pk: str, sk: str, item: dict) -> dict:
+        return {
+            "Item": {"stationId": {"S": pk}, "timestamp": {"S": sk}, **item.items()}
+        }
