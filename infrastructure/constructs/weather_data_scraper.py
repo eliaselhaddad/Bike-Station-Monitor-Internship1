@@ -8,6 +8,7 @@ from aws_cdk import (
     aws_events_targets,
     aws_s3,
 )
+from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
 from constructs import Construct
 
@@ -17,10 +18,16 @@ import os
 
 class WeatherDataScraper(Construct):
     def __init__(
-        self, scope: Construct, id_: str, stage_name: str, service_config: dict
+        self,
+        scope: Construct,
+        id_: str,
+        stage_name: str,
+        service_config: dict,
+        lambda_layer: PythonLayerVersion,
     ) -> None:
         super().__init__(scope, id_)
 
+        self.lambda_layer = lambda_layer
         service_short_name = service_config["service"]["service_short_name"]
         service_name = service_short_name
 
@@ -35,7 +42,7 @@ class WeatherDataScraper(Construct):
         )
 
         # Create the S3 bucket using the environment variable for the bucket name
-        self.weather_data_bucket = self._create_s3_bucket(env_vars["S3_BUCKET_NAME"])
+        # self.weather_data_bucket = self._create_s3_bucket(env_vars["S3_BUCKET_NAME"])
 
         self.data_scraper_lambda = self._build_lambda(
             lambda_name=lambda_name,
@@ -64,15 +71,14 @@ class WeatherDataScraper(Construct):
             function_name=lambda_name,
             runtime=aws_lambda.Runtime.PYTHON_3_10,
             environment=env_vars,
-            code=aws_lambda.Code.from_asset(
-                os.path.join(cwd, ".build/lambdas/bike_data_scraper/handlers")
-            ),
-            handler="weather_data_handler.lambda_handler",
+            code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas/")),
+            handler="bike_data_scraper/handlers/weather_data_handler.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             timeout=Duration.seconds(80),
             memory_size=128,
             role=lambda_role,
+            layers=[self.lambda_layer],
         )
         return lambda_function
 
@@ -101,14 +107,14 @@ class WeatherDataScraper(Construct):
             ],
         )
 
-    def _create_s3_bucket(self, bucket_name: str) -> aws_s3.Bucket:
-        return aws_s3.Bucket(
-            self,
-            "WeatherDataBucket",
-            bucket_name=bucket_name,
-            public_read_access=True,
-            versioned=True,
-        )
+    # def _create_s3_bucket(self, bucket_name: str) -> aws_s3.Bucket:
+    #     return aws_s3.Bucket(
+    #         self,
+    #         "WeatherDataBucket",
+    #         bucket_name=bucket_name,
+    #         public_read_access=True,
+    #         versioned=True,
+    #     )
 
     def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
         rule = aws_events.Rule(

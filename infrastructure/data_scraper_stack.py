@@ -45,6 +45,7 @@ class DataScraperStack(Stack):
             f"{stage_name}-WeatherDataScraper",
             stage_name=stage_name,
             service_config=service_config,
+            lambda_layer=common_layer,
         )
 
         CognitoUserPool(

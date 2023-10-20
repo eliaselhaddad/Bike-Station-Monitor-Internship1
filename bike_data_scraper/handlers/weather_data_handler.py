@@ -35,8 +35,8 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
         raise Exception("Weather data could not be fetched from API!")
 
     csv_str = convert_to_csv(weather_data)
-    response = S3Handler.save_data_as_string_to_csv(
-        csv_str, end_date.strftime("%Y-%m-%d"), bucket_name=bucket_name
+    response = S3Handler().save_data_as_string_to_csv(
+        csv_str=csv_str, end_date=end_date.strftime("%Y-%m-%d"), bucket_name=bucket_name
     )
 
     return {
