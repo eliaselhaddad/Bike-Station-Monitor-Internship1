@@ -8,9 +8,13 @@ from io import StringIO
 from typing import Any, Dict
 import datetime as dt
 
+from bike_data_scraper.s3_client.s3_handler import S3Handler
+
 # Define constants
 API_ENDPOINT = "api.open-meteo.com"
 PATH = "/v1/forecast"
+s3_handler = S3Handler()
+bucket_name = os.environ["S3_BUCKET_NAME"]
 
 
 def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
@@ -31,7 +35,9 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
         raise Exception("Weather data could not be fetched from API!")
 
     csv_str = convert_to_csv(weather_data)
-    response = save_to_s3(csv_str, end_date.strftime("%Y-%m-%d"))
+    response = S3Handler.save_data_as_string_to_csv(
+        csv_str, end_date.strftime("%Y-%m-%d"), bucket_name=bucket_name
+    )
 
     return {
         "statusCode": 200,
@@ -84,11 +90,3 @@ def convert_to_csv(weather_data: dict) -> str:
         writer.writerow(row)
 
     return csv_buffer.getvalue()
-
-
-def save_to_s3(csv_str: str, end_date: str) -> dict:
-    s3 = boto3.client("s3")
-    weather_bucket_name = os.environ.get("S3_BUCKET_NAME")
-    object_key = f"weather-data-{end_date}.csv"
-    s3.put_object(Bucket=weather_bucket_name, Key=object_key, Body=csv_str)
-    return {"weather_bucket_name": weather_bucket_name, "object_key": object_key}
