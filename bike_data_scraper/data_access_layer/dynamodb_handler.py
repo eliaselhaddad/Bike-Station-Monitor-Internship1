@@ -4,13 +4,12 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 
-class DynamodbHandler:
+class DynamoDbHandler:
     def __init__(self, bike_table_name):
         self.bike_table_name = bike_table_name
         self.dynamodb = boto3.resource("dynamodb")
-        self.device_table = self.dynamodb.Table(self.bike_table_name)
+        self.bike_table = self.dynamodb.Table(self.bike_table_name)
 
-    # OBS EJ TESTAD, INGEN ANING HUR/OM DETTA FUNKAR UTAN ÄR ETT EXEMPEL
     def get_bike_data_last_two_weeks(self):
         one_day_ago = datetime.now() - timedelta(days=1)
         one_day_ago_date = one_day_ago.date()

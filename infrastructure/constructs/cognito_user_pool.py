@@ -43,7 +43,7 @@ class CognitoUserPool(Construct):
         service_short_name = service_config["service"]["service_short_name"]
         service_name = service_config["service"]["service_name"]
         self.service_config = service_config
-
+        self.lambda_common_layer = lambda_common_layer
         # Create pre-token lambda
         default_lambda_env = self._create_default_lambda_env(
             service_name=service_name,
@@ -102,7 +102,7 @@ class CognitoUserPool(Construct):
         # The lambda will populate default users to the admin user pool
         self._create_post_deploy_lambda_and_trigger(
             default_lambda_env=default_lambda_env,
-            lambda_common_layer=lambda_common_layer,
+            lambda_common_layer=self.lambda_common_layer,
             post_deploy_lambda_name=f"{stage_name}-{service_short_name}-admin-post-deploy",
             default_users=service_config["default_admin_users"],
             user_pool=self.user_pool,
