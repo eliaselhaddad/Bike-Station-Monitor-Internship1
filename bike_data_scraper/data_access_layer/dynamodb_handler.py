@@ -4,17 +4,15 @@ import boto3
 from boto3.dynamodb.conditions import Key, Attr, Between, BeginsWith
 
 
-class DynamodbHandler:
+class DynamoDbHandler:
     def __init__(self, bike_table_name):
         self.bike_table_name = bike_table_name
         self.dynamodb = boto3.resource("dynamodb")
         self.bike_table = self.dynamodb.Table(self.bike_table_name)
 
-    # OBS EJ TESTAD, INGEN ANING HUR/OM DETTA FUNKAR UTAN ÄR ETT EXEMPEL
-    def get_bike_data_last_two_weeks(self):
-        one_day_ago = datetime.now() - timedelta(days=1)
-        one_day_ago_date = one_day_ago.date()
-        two_weeks_ago = one_day_ago_date - timedelta(days=14)
+    def get_bike_data_last_two_weeks_from_datetime(self, starting_date: datetime):
+        from_date = (starting_date + timedelta(days=1)).date()
+        two_weeks_ago = (starting_date - timedelta(days=14)).date()
 
         response = self.bike_table.scan(
             Select="ALL_ATTRIBUTES",

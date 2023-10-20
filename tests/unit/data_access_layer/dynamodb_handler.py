@@ -3,7 +3,7 @@ import pytest
 import moto
 from datetime import datetime
 
-from bike_data_scraper.data_access_layer.dynamodb_handler import DynamodbHandler
+from bike_data_scraper.data_access_layer.dynamodb_handler import DynamoDbHandler
 
 TABLE_NAME = "demo-dscrap-bike-data-table"
 
@@ -72,15 +72,15 @@ def data_table_with_transactions(data_table):
 
 
 def test_get_all_bike_data(data_table_with_transactions):
-    dynamodb_handler = DynamodbHandler(TABLE_NAME)
+    dynamodb_handler = DynamoDbHandler(TABLE_NAME)
     response = dynamodb_handler.get_all_bike_data()
     assert response[0]["AvailableBikes"] == "1"
     assert len(response) == 4
 
 
 def test_get_bike_data_last_two_weeks(data_table_with_transactions):
-    dynamodb_handler = DynamodbHandler(TABLE_NAME)
+    dynamodb_handler = DynamoDbHandler(TABLE_NAME)
     print(datetime.now())
-    response = dynamodb_handler.get_bike_data_last_two_weeks()
+    response = dynamodb_handler.get_bike_data_last_two_weeks_from_datetime()
     # assert response[0]["AvailableBikes"] == "2"
     assert len(response) == 3
