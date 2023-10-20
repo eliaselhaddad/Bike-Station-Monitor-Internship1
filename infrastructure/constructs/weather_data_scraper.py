@@ -41,9 +41,6 @@ class WeatherDataScraper(Construct):
             service_short_name=service_short_name,
         )
 
-        # Create the S3 bucket using the environment variable for the bucket name
-        # self.weather_data_bucket = self._create_s3_bucket(env_vars["S3_BUCKET_NAME"])
-
         self.data_scraper_lambda = self._build_lambda(
             lambda_name=lambda_name,
             stage_name=stage_name,
@@ -106,15 +103,6 @@ class WeatherDataScraper(Construct):
                 ),
             ],
         )
-
-    # def _create_s3_bucket(self, bucket_name: str) -> aws_s3.Bucket:
-    #     return aws_s3.Bucket(
-    #         self,
-    #         "WeatherDataBucket",
-    #         bucket_name=bucket_name,
-    #         public_read_access=True,
-    #         versioned=True,
-    #     )
 
     def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
         rule = aws_events.Rule(
