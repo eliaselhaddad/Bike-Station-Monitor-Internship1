@@ -107,8 +107,8 @@ class WeatherDataScraper(Construct):
     def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
         rule = aws_events.Rule(
             self,
-            f"{lambda_name}-cron-job-eventbride-rule",
-            rule_name=f"{lambda_name}-cron-job-eventbride-rule",
+            f"{lambda_name}-cron-job-eventbridge-rule",
+            rule_name=f"{lambda_name}-cron-job-eventbridge-rule",
             enabled=True,
             schedule=aws_events.Schedule.expression(expression=cron_expression),
         )

@@ -65,7 +65,7 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
             aws_iam.PolicyStatement(
                 actions=["s3:PutObject"],
                 resources=[
-                    f"arn:aws:s3:::{stage_name}-{service_short_name}-raw-data-weather-and-bikes"
+                    f"arn:aws:s3:::{stage_name}-{service_short_name}-raw-weather-data"
                 ],
             )
         )
@@ -103,7 +103,10 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
             managed_policies=[
                 aws_iam.ManagedPolicy.from_aws_managed_policy_name(
                     "service-role/AWSLambdaBasicExecutionRole"
-                )
+                ),
+                aws_iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "AmazonS3FullAccess"
+                ),
             ],
         )
         return lambda_role
@@ -113,7 +116,7 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
     ) -> dict:
         return {
             "STAGE_NAME": stage_name,
-            "S3_BUCKET_NAME": f"{stage_name}-{service_short_name}-raw-data-weather-and-bikes",
+            "S3_BUCKET_NAME": f"{stage_name}-{service_short_name}-raw-weather-data",
             "BIKE_TABLE_NAME": f"{stage_name}-{service_short_name}-bike-data-table",
             "LOG_LEVEL": "DEBUG",
             "SERVICE_NAME": service_name,

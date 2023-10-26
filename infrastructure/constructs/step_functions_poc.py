@@ -36,54 +36,66 @@ class StepFunctionsPoc(Construct):
         self.lambda_layer = lambda_layer
         service_name = service_config["service"]["service_name"]
         service_short_name = service_config["service"]["service_short_name"]
-        cwd = os.getcwd()
 
-        # Lambda setup
-        lambda_name = (
-            f"{stage_name}-{service_short_name}-step-function-poc-first-parallel-lambda"
+        weather_lambda = aws_lambda.Function.from_function_name(
+            self,
+            id=f"{stage_name}-{service_short_name}-weather-data-scraper",
+            function_name=f"{stage_name}-{service_short_name}-weather-data-scraper",
         )
-        lambda_name2 = f"{stage_name}-{service_short_name}-step-function-poc-second-parallel-lambda"
-        lambda_name3 = f"{stage_name}-{service_short_name}-step-function-poc-finishing"
 
-        lambda_role_name = f"{lambda_name}-role"
+        bike_lambda = aws_lambda.Function.from_function_name(
+            self,
+            id=f"{stage_name}-{service_short_name}-data-scraper",
+            function_name=f"{stage_name}-{service_short_name}-data-scraper",
+        )
+
+        fetch_from_db_lambda = aws_lambda.Function.from_function_name(
+            self,
+            id=f"{stage_name}-{service_short_name}-save-two-weeks-bike-data-to-csv",
+            function_name=f"{stage_name}-{service_short_name}-save-two-weeks-bike-data-to-csv",
+        )
+
+        processed_data_lambda = aws_lambda.Function.from_function_name(
+            self,
+            id=f"{stage_name}-{service_short_name}-data-preprocessed",
+            function_name=f"{stage_name}-{service_short_name}-data-preprocessed",
+        )
+
+        graphs_lambda = aws_lambda.Function.from_function_name(
+            self,
+            id=f"{stage_name}-{service_short_name}-graphs-data-scraper",
+            function_name=f"{stage_name}-{service_short_name}-graphs-data-scraper",
+        )
+
+        lambda_role_name = f"{weather_lambda}-role"
         self.lambda_role = self._build_lambda_role(role_name=lambda_role_name)
 
-        self.first_parallel_lambda = self._build_lambda(
-            stage_name=stage_name,
-            lambda_name=lambda_name,
-            cwd=cwd,
-            lambda_path="bike_data_scraper/handlers/first_lambda.lambda_handler",
-        )
-        self.second_parallel_lambda = self._build_lambda(
-            stage_name=stage_name,
-            lambda_name=lambda_name2,
-            cwd=cwd,
-            lambda_path="bike_data_scraper/handlers/second_lambda.lambda_handler",
-        )
-        self.finishing_lambda = self._build_lambda(
-            stage_name=stage_name,
-            lambda_name=lambda_name3,
-            cwd=cwd,
-            lambda_path="bike_data_scraper/handlers/third_lambda.lambda_handler",
-        )
         first_parallel_lambda_task = tasks.LambdaInvoke(
-            self, id="StartingParallelTask", lambda_function=self.first_parallel_lambda
+            self, id="FetchBikeDataFromApi", lambda_function=bike_lambda
         )
         second_parallel_lambda_task = tasks.LambdaInvoke(
             self,
-            id="StartingParallelTaskSecond",
-            lambda_function=self.second_parallel_lambda,
+            id="FetchWeatherDataFromApi",
+            lambda_function=weather_lambda,
         )
-        finishing_lambda_task = tasks.LambdaInvoke(
-            self, id="FinishingTask", lambda_function=self.finishing_lambda
+        third_lambda_task = tasks.LambdaInvoke(
+            self, id="SaveBikeDataToS3", lambda_function=fetch_from_db_lambda
+        )
+        fourth_lambda_task = tasks.LambdaInvoke(
+            self, id="ProcessAndMergeDatsets", lambda_function=processed_data_lambda
+        )
+        fifth_lambda_task = tasks.LambdaInvoke(
+            self, id="FetchGraphsData", lambda_function=graphs_lambda
         )
 
         parallel_task = (
-            sfn.Parallel(self, "ParallelTaskId")
+            sfn.Parallel(self, "FetchWeatherAndBikeData")
             .branch(first_parallel_lambda_task)
             .branch(second_parallel_lambda_task)
         )
-        parallel_task.next(finishing_lambda_task)
+        parallel_task.next(third_lambda_task)
+        third_lambda_task.next(fourth_lambda_task)
+        fourth_lambda_task.next(fifth_lambda_task)
 
         sfn.StateMachine(self, id="MyStepMachinesId", definition=parallel_task)
 
