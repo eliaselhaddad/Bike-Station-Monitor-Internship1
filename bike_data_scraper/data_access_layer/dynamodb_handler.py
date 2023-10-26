@@ -5,7 +5,7 @@ from boto3.dynamodb.conditions import Attr
 
 
 class BikeDataDynamoDbHandler:
-    def __init__(self, bike_table_name):
+    def __init__(self, bike_table_name: str):
         self.bike_table_name = bike_table_name
         self.dynamodb = boto3.resource("dynamodb")
         self.bike_table = self.dynamodb.Table(self.bike_table_name)
