@@ -6,6 +6,7 @@ from aws_cdk import (
     Duration,
     aws_events,
     aws_events_targets,
+    aws_s3,
 )
 from aws_cdk.aws_lambda_python_alpha import PythonLayerVersion
 
@@ -25,6 +26,7 @@ class WeatherDataScraper(Construct):
         lambda_layer: PythonLayerVersion,
     ) -> None:
         super().__init__(scope, id_)
+
         self.lambda_layer = lambda_layer
         service_short_name = service_config["service"]["service_short_name"]
         service_name = service_short_name
@@ -34,7 +36,9 @@ class WeatherDataScraper(Construct):
         lambda_role = self._build_lambda_role(lambda_role_name)
 
         env_vars = self._create_env_vars(
-            stage_name=stage_name, service_name=service_name
+            stage_name=stage_name,
+            service_name=service_name,
+            service_short_name=service_short_name,
         )
 
         self.data_scraper_lambda = self._build_lambda(
@@ -42,6 +46,12 @@ class WeatherDataScraper(Construct):
             stage_name=stage_name,
             env_vars=env_vars,
             lambda_role=lambda_role,
+        )
+
+        # Eventbridge setup for a cron job
+        self.cron_job_eventbride_rule = self._cron_job_eventbride_rule(
+            lambda_name=lambda_name,
+            cron_expression="cron(0 12 ? * MON#3 *)",  # Every two weeks on Monday at 12:00 PM
         )
 
     def _build_lambda(
@@ -59,7 +69,7 @@ class WeatherDataScraper(Construct):
             runtime=aws_lambda.Runtime.PYTHON_3_10,
             environment=env_vars,
             code=aws_lambda.Code.from_asset(os.path.join(cwd, ".build/lambdas/")),
-            handler="bike_data_scraper/handlers/weather_data_scraper.lambda_handler",
+            handler="bike_data_scraper/handlers/weather_data_handler.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
             timeout=Duration.seconds(80),
@@ -69,10 +79,12 @@ class WeatherDataScraper(Construct):
         )
         return lambda_function
 
-    def _create_env_vars(self, stage_name: str, service_name: str):
+    def _create_env_vars(
+        self, stage_name: str, service_name: str, service_short_name: str
+    ):
         return {
             "STAGE_NAME": stage_name,
-            "S3_BUCKET_NAME": "raw-data-weather-and-bikes",
+            "S3_BUCKET_NAME": f"{stage_name}-{service_short_name}-raw-weather-data",
             "LOG_LEVEL": "DEBUG",
             "SERVICE_NAME": service_name,
         }
@@ -91,3 +103,14 @@ class WeatherDataScraper(Construct):
                 ),
             ],
         )
+
+    def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
+        rule = aws_events.Rule(
+            self,
+            f"{lambda_name}-cron-job-eventbride-rule",
+            rule_name=f"{lambda_name}-cron-job-eventbride-rule",
+            enabled=True,
+            schedule=aws_events.Schedule.expression(expression=cron_expression),
+        )
+        rule.add_target(aws_events_targets.LambdaFunction(self.data_scraper_lambda))
+        return rule

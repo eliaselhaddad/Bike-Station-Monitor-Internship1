@@ -8,6 +8,7 @@ from infrastructure.constructs.data_fetch_and_save import SaveTwoWeeksBikeDataTo
 from infrastructure.constructs.two_weeks_processed_data import DataPreprocessed
 from infrastructure.constructs.step_functions_poc import StepFunctionsPoc
 from infrastructure.constructs.weather_data_scraper import WeatherDataScraper
+from infrastructure.constructs.graphs_data_scraper import GraphsDataScraper
 
 
 class DataScraperStack(Stack):
@@ -66,6 +67,13 @@ class DataScraperStack(Stack):
         StepFunctionsPoc(
             self,
             f"{stage_name}-StepFunctionsPoc",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
+        GraphsDataScraper(
+            self,
+            f"{stage_name}-GraphsDataScraper",
             stage_name=stage_name,
             service_config=service_config,
             lambda_layer=common_layer,
