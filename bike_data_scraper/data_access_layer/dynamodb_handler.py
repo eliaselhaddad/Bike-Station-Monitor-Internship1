@@ -38,6 +38,4 @@ class BikeDataDynamoDbHandler:
 
     @staticmethod
     def create_dynamodb_item(pk: str, sk: str, item: dict) -> dict:
-        return {
-            "Item": {"stationId": {"S": pk}, "timestamp": {"S": sk}, **item.items()}
-        }
+        return {}
