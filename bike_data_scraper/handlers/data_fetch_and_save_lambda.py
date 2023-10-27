@@ -16,9 +16,13 @@ service_short_name = os.environ.get("SERVICE_SHORT_NAME")
 
 
 def lambda_handler(event, context):
+    starting_date = datetime.now()
     items = BikeDataDynamoDbHandler(
         table_name
-    ).get_bike_data_last_two_weeks_from_datetime()
+    ).get_bike_data_last_two_weeks_from_datetime(starting_date=starting_date)
+
+    if not items:
+        return {"message": "No data found for the last two weeks."}
 
     columns = items[0].keys()
     csv_data = UniversalCSVConverter(columns=columns, data=items).to_csv()
