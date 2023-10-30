@@ -1,10 +1,12 @@
 import argparse
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 import joblib
 import boto3
 from io import StringIO
 import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 def read_from_s3(bucket_name, file_name):
@@ -29,7 +31,7 @@ if __name__ == "__main__":
     y_train = read_from_s3(args.bucket_name, args.ytrain_key)
     y_test = read_from_s3(args.bucket_name, args.ytest_key)
 
-    model = RandomForestClassifier()
+    model = RandomForestRegressor()
 
     model.fit(X_train, y_train)
 

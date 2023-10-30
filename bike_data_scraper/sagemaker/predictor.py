@@ -6,16 +6,16 @@ from predictor_handler import PredictorHandler
 if __name__ == "__main__":
     input_df = PredictorHandler(
         IsOpen=True,
-        Long="11.958664",
-        Lat="57.695921",
+        Long="11.979328",
+        Lat="57.673475",
         Year=2023,
         Month=10,
-        Day=29,
-        Hour=15,
-        Temperature=4,
-        Humidity=79,
-        Wind_Speed=4,
-        Precipitation=0,
+        Day=30,
+        Hour=16,
+        Temperature=11,
+        Humidity=87,
+        Wind_Speed=10,
+        Precipitation=10,
         Visibility=30000,
         Snowfall=0,
         IsWeekend=0,
@@ -28,5 +28,3 @@ if __name__ == "__main__":
 
     result = predictor.predict(input_df)
     print(f"number of bikes at location is {result}")
-
-    sagemaker.Session().delete_endpoint(endpoint_name)
