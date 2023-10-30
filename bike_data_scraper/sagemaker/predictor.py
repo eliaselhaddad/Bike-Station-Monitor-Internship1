@@ -6,12 +6,12 @@ from predictor_handler import PredictorHandler
 if __name__ == "__main__":
     input_df = PredictorHandler(
         IsOpen=True,
-        Long="11.979328",
-        Lat="57.673475",
+        Long="12.00061075859102",
+        Lat="57.68140929362666",
         Year=2023,
         Month=10,
         Day=30,
-        Hour=16,
+        Hour=17,
         Temperature=11,
         Humidity=87,
         Wind_Speed=10,
@@ -27,4 +27,4 @@ if __name__ == "__main__":
     )
 
     result = predictor.predict(input_df)
-    print(f"number of bikes at location is {result}")
+    print(f"number of bikes at location is {round(result[0])}")
