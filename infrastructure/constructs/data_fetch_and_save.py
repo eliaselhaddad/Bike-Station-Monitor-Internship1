@@ -88,8 +88,8 @@ class SaveTwoWeeksBikeDataToCsv(Construct):
             handler="bike_data_scraper/handlers/data_fetch_and_save_lambda.lambda_handler",
             tracing=aws_lambda.Tracing.ACTIVE,
             retry_attempts=2,
-            timeout=Duration.seconds(200),
-            memory_size=128,
+            timeout=Duration.seconds(900),
+            memory_size=1024,
             role=lambda_role,
             layers=[self.lambda_layer],
         )

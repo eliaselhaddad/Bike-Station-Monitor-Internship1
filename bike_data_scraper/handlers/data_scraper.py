@@ -23,8 +23,7 @@ def lambda_handler(event, context):
     for station in response:
         station_id = station.get("Name") or station.get("StationId")
         item = {"stationId": station_id, "timestamp": current_timestamp}
-        item.update(station)
-        item.update({k: str(v) for k, v in station})
+        item.update({k: str(v) for k, v in station.items()})
 
         dynamodb_client.create_bike_data_item(item)
 
