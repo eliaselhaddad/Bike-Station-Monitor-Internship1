@@ -48,12 +48,6 @@ class WeatherDataScraper(Construct):
             lambda_role=lambda_role,
         )
 
-        # Eventbridge setup for a cron job
-        self.cron_job_eventbride_rule = self._cron_job_eventbride_rule(
-            lambda_name=lambda_name,
-            cron_expression="cron(0 12 ? * MON#3 *)",  # Every two weeks on Monday at 12:00 PM
-        )
-
     def _build_lambda(
         self,
         lambda_name: str,
@@ -103,14 +97,3 @@ class WeatherDataScraper(Construct):
                 ),
             ],
         )
-
-    def _cron_job_eventbride_rule(self, lambda_name: str, cron_expression: str):
-        rule = aws_events.Rule(
-            self,
-            f"{lambda_name}-cron-job-eventbridge-rule",
-            rule_name=f"{lambda_name}-cron-job-eventbridge-rule",
-            enabled=True,
-            schedule=aws_events.Schedule.expression(expression=cron_expression),
-        )
-        rule.add_target(aws_events_targets.LambdaFunction(self.data_scraper_lambda))
-        return rule
