@@ -31,6 +31,7 @@ class StepFunctionsPoc(Construct):
         self.lambda_layer = lambda_layer
         service_name = service_config["service"]["service_name"]
         service_short_name = service_config["service"]["service_short_name"]
+        state_machine_name = f"{stage_name}-{service_short_name}-step-machine"
 
         self.weather_lambda = aws_lambda.Function.from_function_name(
             self,
@@ -92,10 +93,10 @@ class StepFunctionsPoc(Construct):
         third_lambda_task.next(fourth_lambda_task)
         fourth_lambda_task.next(fifth_lambda_task)
 
-        sfn.StateMachine(self, id="MyStepMachinesId", definition=parallel_task)
+        sfn.StateMachine(self, id=state_machine_name, definition=parallel_task)
 
         self.cron_job_eventbride_rule = self._cron_job_eventbride_rule(
-            state_machine_name="MyStepMachinesId",
+            state_machine_name=state_machine_name,
             cron_expression="cron(0 12 ? * MON#3 *)",
         )
 
