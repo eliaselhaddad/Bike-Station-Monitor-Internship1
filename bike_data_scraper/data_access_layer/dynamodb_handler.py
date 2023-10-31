@@ -5,7 +5,7 @@ from boto3.dynamodb.conditions import Attr
 
 
 class BikeDataDynamoDbHandler:
-    def __init__(self, bike_table_name):
+    def __init__(self, bike_table_name: str):
         self.bike_table_name = bike_table_name
         self.dynamodb = boto3.resource("dynamodb")
         self.bike_table = self.dynamodb.Table(self.bike_table_name)
@@ -38,6 +38,4 @@ class BikeDataDynamoDbHandler:
 
     @staticmethod
     def create_dynamodb_item(pk: str, sk: str, item: dict) -> dict:
-        return {
-            "Item": {"stationId": {"S": pk}, "timestamp": {"S": sk}, **item.items()}
-        }
+        return {}
