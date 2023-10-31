@@ -3,8 +3,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from io import StringIO
 
-SOURCE_BUCKET = "cyrille-dscrap-bucket"
-SOURCE_KEY = "processed/station_bikes/2023-09-10-2023-09-24/StationaryStations.csv"
+SOURCE_BUCKET = "processed-bike-data"
+SOURCE_KEY = "StationaryStations.csv"
 DEST_BUCKET = "sagemaker-eu-north-1-796717305864"
 DEST_PREFIX = "sagemaker/sklearncontainer/"
 
@@ -42,6 +42,8 @@ def save_to_s3(dataframe, bucket_name, file_key):
 
 def main():
     df = fetch_from_s3(SOURCE_BUCKET, SOURCE_KEY)
+
+    df.dropna(inplace=True)
 
     df = df[COLUMNS_TO_KEEP]
 
