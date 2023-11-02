@@ -45,9 +45,7 @@ def lambda_handler(event, context):
         df = derive_weekend_feature(df)
         create_final_datasets_s3(df, DESTINATION_BUCKET, "processed")
         logger.info(
-            print(
-                f"Done! Data successfully processed and saved in https://s3.console.aws.amazon.com/s3/buckets/{DESTINATION_BUCKET}/processed/{CURRENT_DATE}/"
-            )
+            f"Done! Data successfully processed and saved in https://s3.console.aws.amazon.com/s3/buckets/{DESTINATION_BUCKET}/processed/{CURRENT_DATE}/"
         )
     except Exception as e:
         logger.error(f"Something went wrong, data didn't process! Error: {e}")
@@ -157,7 +155,6 @@ def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
     try:
         SingleBikes = df[df["stationId"].str.startswith("BIKE")]
         StationaryStations = df[~df["stationId"].str.startswith("BIKE")]
-        logger.info(SingleBikes.columns)
         current_date_singles = get_min_and_max_dates_from_dataframe(SingleBikes)
         current_date_stations = get_min_and_max_dates_from_dataframe(StationaryStations)
         s3_handler.save_dataframe_to_s3(
