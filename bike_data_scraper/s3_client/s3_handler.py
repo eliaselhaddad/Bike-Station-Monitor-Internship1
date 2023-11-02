@@ -24,7 +24,7 @@ class S3Handler:
         with StringIO() as csv_buffer:
             df.to_csv(csv_buffer, index=False)
             self.s3_resource.Object(
-                bucket_name, f"{path_name}/{sub_path}/{current_date}/{filename}.csv"
+                bucket_name, f"{path_name}/{current_date}/{sub_path}/{filename}.csv"
             ).put(Body=csv_buffer.getvalue())
 
     def save_data_as_string_to_csv(

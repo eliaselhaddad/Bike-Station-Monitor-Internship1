@@ -59,8 +59,8 @@ class GraphsDataScraper(Construct):
             "SERVICE_NAME": service_name,
             "GRAPHS_SOURCE_BUCKET": s3_source_bucket,
             "GRAPHS_DESTINATION_BUCKET": s3_destination_bucket,
-            "STATION_BIKE_DATA": "processed/station_bikes/2023-09-10-2023-09-24/StationaryStations.csv",
-            "SINGLE_BIKE_DATA": "processed/single_bikes/2023-09-10-2023-09-24/SingleBikes.csv",
+            "STATION_BIKE_DATA": "processed/2023-09-10-2023-09-24/station_bikes/StationaryStations.csv",
+            "SINGLE_BIKE_DATA": "processed/2023-09-10-2023-09-24/single_bikes/SingleBikes.csv",
             "LOG_LEVEL": "DEBUG",
         }
 
