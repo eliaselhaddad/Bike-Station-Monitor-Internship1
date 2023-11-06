@@ -12,10 +12,10 @@ if __name__ == "__main__":
     train_path = os.path.join(os.getcwd(), "bike_data_scraper", "sagemaker", "train.py")
 
     bucket_name = "sagemaker-eu-north-1-796717305864"
-    xtrain_key = "sagemaker/sklearncontainer/xtrain.csv"
-    xtest_key = "sagemaker/sklearncontainer/xtest.csv"
-    ytrain_key = "sagemaker/sklearncontainer/ytrain.csv"
-    ytest_key = "sagemaker/sklearncontainer/ytest.csv"
+    xtrain_key = "sagemaker/sklearncontainer/xtrain2.csv"
+    xtest_key = "sagemaker/sklearncontainer/xtest2.csv"
+    ytrain_key = "sagemaker/sklearncontainer/ytrain2.csv"
+    ytest_key = "sagemaker/sklearncontainer/ytest2.csv"
 
     sklearn = SKLearn(
         entry_point=train_path,
@@ -40,3 +40,9 @@ if __name__ == "__main__":
         initial_instance_count=1,
         endpoint_name="random-forest-endpoint-1",
     )
+
+
+# "ml.m5.xlarge" 4/16
+# "ml.r5.8xlarge" 32/256
+# "ml.m5.8xlarge" 32/128
+# "ml.r5.24xlarge" 96/768

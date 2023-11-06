@@ -40,8 +40,8 @@ def fetch_weather_data(lat, lon):
 
 
 if __name__ == "__main__":
-    LAT = "57.6746736799565"
-    LONG = "11.93563765407248"
+    LAT = "57.673431"
+    LONG = "11.97932"
 
     weather_data = fetch_weather_data(LAT, LONG)
 
@@ -50,9 +50,10 @@ if __name__ == "__main__":
         Long=LONG,
         Lat=LAT,
         Year=2023,
-        Month=10,
-        Day=31,
-        Hour=10,
+        Month=11,
+        Day=3,
+        Hour=9,
+        Minute=0,
         Temperature=weather_data["Temperature"],
         Humidity=weather_data["Humidity"],
         Wind_Speed=weather_data["Wind_Speed"],

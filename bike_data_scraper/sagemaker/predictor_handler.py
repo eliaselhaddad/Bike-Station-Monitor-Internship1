@@ -13,6 +13,7 @@ class PredictorHandler:
         Month,
         Day,
         Hour,
+        Minute,
         Temperature,
         Humidity,
         Wind_Speed,
@@ -28,6 +29,7 @@ class PredictorHandler:
         self.Month = Month
         self.Day = Day
         self.Hour = Hour
+        self.Minute = Minute
 
         self.Temperature = Temperature
         self.Humidity = Humidity
@@ -47,6 +49,7 @@ class PredictorHandler:
                 "Month": [self.Month],
                 "Day": [self.Day],
                 "Hour": [self.Hour],
+                "Minute": [self.Minute],
                 "Temperature": [self.Temperature],
                 "Humidity": [self.Humidity],
                 "Wind_Speed": [self.Wind_Speed],

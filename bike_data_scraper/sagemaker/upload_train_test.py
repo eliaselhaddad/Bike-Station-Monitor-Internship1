@@ -2,11 +2,14 @@ import boto3
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from io import StringIO
+import numpy as np
 
-SOURCE_BUCKET = "processed-bike-data"
-SOURCE_KEY = "StationaryStations.csv"
+SOURCE_BUCKET = "danneftw-dscrap-bucket"
+SOURCE_KEY = (
+    "processed/two_weeks/station_bikes/2023-10-18-2023-10-31/StationaryStations.csv"
+)
 DEST_BUCKET = "sagemaker-eu-north-1-796717305864"
-DEST_PREFIX = "sagemaker/sklearncontainer/"
+DEST_PREFIX = "sagemaker/sklearncontainer/train-test-two-weeks/"
 
 COLUMNS_TO_KEEP = [
     "IsOpen",
@@ -16,6 +19,7 @@ COLUMNS_TO_KEEP = [
     "Month",
     "Day",
     "Hour",
+    "Minute",
     "Temperature",
     "Humidity",
     "Wind_Speed",
@@ -49,6 +53,8 @@ def main():
 
     X = df.drop("TotalAvailableBikes", axis=1)
     y = df["TotalAvailableBikes"]
+
+    y = np.ravel(y)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 

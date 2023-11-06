@@ -1,51 +1,28 @@
-import argparse
-import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-import joblib
-import boto3
-from io import StringIO
-import logging
+from sagemaker.sklearn.estimator import SKLearn
+import sagemaker
+import os
 
-logging.basicConfig(level=logging.INFO)
+# Set your script parameters (if you have any)
+script_params = {
+    "bucket-name": "sagemaker-eu-north-1-796717305864",
+    "xtrain-key": "sagemaker/sklearncontainer/xtrain2.csv",
+    "xtest-key": "sagemaker/sklearncontainer/xtest2.csv",
+    "ytrain-key": "sagemaker/sklearncontainer/ytrain2.csv",
+    "ytest-key": "sagemaker/sklearncontainer/ytest2.csv",
+}
 
+# Create an SKLearn estimator
+estimator = SKLearn(
+    entry_point=os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "training_job.py"
+    ),  # Your script filename
+    framework_version="0.23-1",  # Version of scikit-learn you want to use
+    role="AmazonSageMaker-ExecutionRole-20231005T090396",  # IAM role ARN
+    instance_count=1,  # Number of instances to use
+    instance_type="ml.m5.4xlarge",  # Specify a larger instance type here
+    sagemaker_session=sagemaker.Session(),  # Session object
+    hyperparameters=script_params,  # Pass script parameters (if any)
+)
 
-def read_from_s3(bucket_name, file_name):
-    s3 = boto3.client("s3")
-    obj = s3.get_object(Bucket=bucket_name, Key=file_name)
-    return pd.read_csv(StringIO(obj["Body"].read().decode("utf-8")))
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--bucket-name", type=str, required=True)
-    parser.add_argument("--xtrain-key", type=str, required=True)
-    parser.add_argument("--xtest-key", type=str, required=True)
-    parser.add_argument("--ytrain-key", type=str, required=True)
-    parser.add_argument("--ytest-key", type=str, required=True)
-
-    args = parser.parse_args()
-
-    X_train = read_from_s3(args.bucket_name, args.xtrain_key)
-    X_test = read_from_s3(args.bucket_name, args.xtest_key)
-    y_train = read_from_s3(args.bucket_name, args.ytrain_key)
-    y_test = read_from_s3(args.bucket_name, args.ytest_key)
-
-    model = RandomForestRegressor()
-
-    model.fit(X_train, y_train)
-
-    accuracy = model.score(X_test, y_test)
-    logging.info(f"Accuracy: {accuracy * 100:.2f}%")
-
-    joblib.dump(model, "/opt/ml/model/model.joblib")
-    logging.info("Model saved to /opt/ml/model/model.joblib")
-
-
-def model_fn(model_dir):
-    """Deserialized and return fitted model
-
-    Note: this should have the same name as the serialized model in the main method
-    """
-    model = joblib.load(f"{model_dir}/model.joblib")
-    return model
+# Fit the model
+estimator.fit({"train": "s3://sagemaker-eu-north-1-796717305864"})
