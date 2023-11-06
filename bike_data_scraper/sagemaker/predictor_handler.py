@@ -16,7 +16,7 @@ class PredictorHandler:
         Minute,
         Temperature,
         Humidity,
-        Wind_Speed,
+        Windspeed,
         Precipitation,
         Visibility,
         Snowfall,
@@ -33,7 +33,7 @@ class PredictorHandler:
 
         self.Temperature = Temperature
         self.Humidity = Humidity
-        self.Wind_Speed = Wind_Speed
+        self.Windspeed = Windspeed
         self.Precipitation = Precipitation
         self.Visibility = Visibility
         self.Snowfall = Snowfall
@@ -52,7 +52,7 @@ class PredictorHandler:
                 "Minute": [self.Minute],
                 "Temperature": [self.Temperature],
                 "Humidity": [self.Humidity],
-                "Wind_Speed": [self.Wind_Speed],
+                "Windspeed": [self.Windspeed],
                 "Precipitation": [self.Precipitation],
                 "Visibility": [self.Visibility],
                 "Snowfall": [self.Snowfall],

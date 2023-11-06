@@ -10,10 +10,10 @@ API_ENDPOINT = "api.open-meteo.com"
 PATH = "/v1/forecast"
 
 
-def fetch_weather_data(lat, lon):
+def fetch_weather_data():
     params = {
-        "latitude": lat,
-        "longitude": lon,
+        "latitude": 52.52,
+        "longitude": 13.41,
         "hourly": "temperature_2m,relativehumidity_2m,windspeed_10m,precipitation,visibility,snowfall",
     }
     params_str = urllib.parse.urlencode(params)
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         Minute=0,
         Temperature=weather_data["Temperature"],
         Humidity=weather_data["Humidity"],
-        Wind_Speed=weather_data["Wind_Speed"],
+        Wind_Speed=weather_data["Windspeed"],
         Precipitation=weather_data["Precipitation"],
         Visibility=weather_data["Visibility"],
         Snowfall=weather_data["Snowfall"],

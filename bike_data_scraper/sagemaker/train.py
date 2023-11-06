@@ -1,5 +1,4 @@
 from sagemaker.sklearn.estimator import SKLearn
-import sagemaker
 import os
 
 # Set your script parameters (if you have any)
@@ -20,7 +19,6 @@ estimator = SKLearn(
     role="AmazonSageMaker-ExecutionRole-20231005T090396",  # IAM role ARN
     instance_count=1,  # Number of instances to use
     instance_type="ml.m5.4xlarge",  # Specify a larger instance type here
-    sagemaker_session=sagemaker.Session(),  # Session object
     hyperparameters=script_params,  # Pass script parameters (if any)
 )
 
