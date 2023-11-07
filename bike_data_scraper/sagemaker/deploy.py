@@ -1,48 +1,29 @@
 import sagemaker
-from sagemaker import get_execution_role
-from sagemaker.sklearn.estimator import SKLearn
+from sagemaker.sklearn.model import SKLearnModel
 import os
-import boto3
 
 if __name__ == "__main__":
+    sagemaker_session = sagemaker.Session()
     role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
-    sagemaker_session = sagemaker.Session(
-        boto_session=boto3.Session(region_name="eu-north-1")
+
+    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-07-15-42-38-429/output/model.tar.gz"
+    inference_script_path = os.path.join(
+        os.getcwd(), "bike_data_scraper", "sagemaker", "inference.py"
     )
-    train_path = os.path.join(os.getcwd(), "bike_data_scraper", "sagemaker", "train.py")
 
-    bucket_name = "sagemaker-eu-north-1-796717305864"
-    xtrain_key = "sagemaker/sklearncontainer/xtrain2.csv"
-    xtest_key = "sagemaker/sklearncontainer/xtest2.csv"
-    ytrain_key = "sagemaker/sklearncontainer/ytrain2.csv"
-    ytest_key = "sagemaker/sklearncontainer/ytest2.csv"
-
-    sklearn = SKLearn(
-        entry_point=train_path,
+    sklearn_model = SKLearnModel(
+        model_data=model_data,
         role=role,
-        instance_type="ml.m5.xlarge",
-        sagemaker_session=sagemaker_session,
         framework_version="0.23-1",
         py_version="py3",
-        hyperparameters={
-            "bucket-name": bucket_name,
-            "xtrain-key": xtrain_key,
-            "xtest-key": xtest_key,
-            "ytrain-key": ytrain_key,
-            "ytest-key": ytest_key,
-        },
+        entry_point=inference_script_path,
     )
 
-    sklearn.fit()
-
-    predictor = sklearn.deploy(
-        instance_type="ml.m5.xlarge",
+    # Deploy the model to an endpoint with increased volume size
+    predictor = sklearn_model.deploy(
+        instance_type="ml.m5.2xlarge",
         initial_instance_count=1,
         endpoint_name="random-forest-endpoint-1",
     )
 
-
-# "ml.m5.xlarge" 4/16
-# "ml.r5.8xlarge" 32/256
-# "ml.m5.8xlarge" 32/128
-# "ml.r5.24xlarge" 96/768
+    print("Endpoint successfully created \nName: {}".format(predictor.endpoint_name))

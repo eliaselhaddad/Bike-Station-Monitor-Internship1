@@ -30,7 +30,7 @@ def fetch_weather_data():
         return {
             "Temperature": hourly_data["temperature_2m"][0],
             "Humidity": hourly_data["relativehumidity_2m"][0],
-            "Wind_Speed": hourly_data["windspeed_10m"][0],
+            "Windspeed": hourly_data["windspeed_10m"][0],
             "Precipitation": hourly_data["precipitation"][0],
             "Visibility": hourly_data["visibility"][0],
             "Snowfall": hourly_data["snowfall"][0],
@@ -40,10 +40,9 @@ def fetch_weather_data():
 
 
 if __name__ == "__main__":
-    LAT = "57.673431"
-    LONG = "11.97932"
-
-    weather_data = fetch_weather_data(LAT, LONG)
+    LAT = 57.716525
+    LONG = 11.953919
+    weather_data = fetch_weather_data()
 
     input_df = PredictorHandler(
         IsOpen=True,
@@ -51,12 +50,12 @@ if __name__ == "__main__":
         Lat=LAT,
         Year=2023,
         Month=11,
-        Day=3,
-        Hour=9,
-        Minute=0,
+        Day=7,
+        Hour=17,
+        Minute=35,
         Temperature=weather_data["Temperature"],
         Humidity=weather_data["Humidity"],
-        Wind_Speed=weather_data["Windspeed"],
+        Windspeed=weather_data["Windspeed"],
         Precipitation=weather_data["Precipitation"],
         Visibility=weather_data["Visibility"],
         Snowfall=weather_data["Snowfall"],

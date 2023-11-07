@@ -1,26 +1,26 @@
+# This is train.py
 from sagemaker.sklearn.estimator import SKLearn
 import os
 
-# Set your script parameters (if you have any)
-script_params = {
-    "bucket-name": "sagemaker-eu-north-1-796717305864",
-    "xtrain-key": "sagemaker/sklearncontainer/xtrain2.csv",
-    "xtest-key": "sagemaker/sklearncontainer/xtest2.csv",
-    "ytrain-key": "sagemaker/sklearncontainer/ytrain2.csv",
-    "ytest-key": "sagemaker/sklearncontainer/ytest2.csv",
-}
-
-# Create an SKLearn estimator
-estimator = SKLearn(
-    entry_point=os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "training_job.py"
-    ),  # Your script filename
-    framework_version="0.23-1",  # Version of scikit-learn you want to use
-    role="AmazonSageMaker-ExecutionRole-20231005T090396",  # IAM role ARN
-    instance_count=1,  # Number of instances to use
-    instance_type="ml.m5.4xlarge",  # Specify a larger instance type here
-    hyperparameters=script_params,  # Pass script parameters (if any)
+role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
+training_job = os.path.join(
+    os.getcwd(), "bike_data_scraper", "sagemaker", "training_job.py"
 )
 
-# Fit the model
-estimator.fit({"train": "s3://sagemaker-eu-north-1-796717305864"})
+sklearn_estimator = SKLearn(
+    entry_point=training_job,  # This should be your training and preprocessing script.
+    role=role,
+    instance_type="ml.m5.xlarge",
+    framework_version="0.23-1",
+    py_version="py3",
+    hyperparameters={
+        "bucket-name": "danneftw-dscrap-bucket",
+        "file-path": "processed/station_bikes/2023-08-09-2023-11-02/StationaryStations.csv",
+    },
+)
+
+sklearn_estimator.fit(
+    {
+        "train": "s3://danneftw-dscrap-bucket/processed/station_bikes/2023-08-09-2023-11-02/StationaryStations.csv"
+    }
+)
