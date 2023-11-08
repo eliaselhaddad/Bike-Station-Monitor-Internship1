@@ -31,7 +31,9 @@ if __name__ == "__main__":
     df = read_csv_from_s3(args.bucket_name, args.file_path)
 
     # Preprocessing steps
-    df["Visibility"] = df["Visibility"].fillna(0)
+    df["Visibility"] = df["Visibility"].fillna(
+        23180
+    )  # average visibility the week before missing visbility data
 
     COLUMNS_TO_KEEP = [
         "IsOpen",

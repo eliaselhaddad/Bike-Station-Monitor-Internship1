@@ -6,7 +6,7 @@ if __name__ == "__main__":
     sagemaker_session = sagemaker.Session()
     role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
 
-    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-07-15-42-38-429/output/model.tar.gz"
+    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-08-08-59-36-180/output/model.tar.gz"
     inference_script_path = os.path.join(
         os.getcwd(), "bike_data_scraper", "sagemaker", "inference.py"
     )
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         entry_point=inference_script_path,
     )
 
-    # Deploy the model to an endpoint with increased volume size
+    # increased instance
     predictor = sklearn_model.deploy(
         instance_type="ml.m5.2xlarge",
         initial_instance_count=1,
@@ -27,3 +27,6 @@ if __name__ == "__main__":
     )
 
     print("Endpoint successfully created \nName: {}".format(predictor.endpoint_name))
+
+
+# ml.m5.2xlarge 8/32 - $0.49/h

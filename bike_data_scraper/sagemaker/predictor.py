@@ -1,10 +1,10 @@
 import http.client
 import urllib.parse
 import sagemaker
-from sagemaker import get_execution_role
 from sagemaker.sklearn.model import SKLearnPredictor
 from predictor_handler import PredictorHandler
 import json
+from datetime import datetime
 
 API_ENDPOINT = "api.open-meteo.com"
 PATH = "/v1/forecast"
@@ -40,26 +40,29 @@ def fetch_weather_data():
 
 
 if __name__ == "__main__":
-    LAT = 57.716525
-    LONG = 11.953919
+    LAT = 57.69669
+    LONG = 11.972278
     weather_data = fetch_weather_data()
+
+    # Get current system time
+    now = datetime.now()
 
     input_df = PredictorHandler(
         IsOpen=True,
         Long=LONG,
         Lat=LAT,
-        Year=2023,
-        Month=11,
-        Day=7,
-        Hour=17,
-        Minute=35,
+        Year=now.year,
+        Month=now.month,
+        Day=now.day,
+        Hour=now.hour,
+        Minute=now.minute,
         Temperature=weather_data["Temperature"],
         Humidity=weather_data["Humidity"],
         Windspeed=weather_data["Windspeed"],
         Precipitation=weather_data["Precipitation"],
         Visibility=weather_data["Visibility"],
         Snowfall=weather_data["Snowfall"],
-        IsWeekend=0,
+        IsWeekend=int(now.weekday() >= 5),  # 0 for weekdays, 1 for weekends
     ).create_dataframe()
 
     endpoint_name = "random-forest-endpoint-1"

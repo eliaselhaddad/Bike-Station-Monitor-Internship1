@@ -24,3 +24,6 @@ sklearn_estimator.fit(
         "train": "s3://danneftw-dscrap-bucket/processed/station_bikes/2023-08-09-2023-11-02/StationaryStations.csv"
     }
 )
+
+
+# ml.m5.xlarge 4/15 - $0.245/h
