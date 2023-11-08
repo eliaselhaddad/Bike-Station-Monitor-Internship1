@@ -40,11 +40,10 @@ def fetch_weather_data():
 
 
 if __name__ == "__main__":
-    LAT = 57.69669
-    LONG = 11.972278
+    LAT = 57.686915
+    LONG = 11.958232
     weather_data = fetch_weather_data()
 
-    # Get current system time
     now = datetime.now()
 
     input_df = PredictorHandler(
@@ -62,7 +61,7 @@ if __name__ == "__main__":
         Precipitation=weather_data["Precipitation"],
         Visibility=weather_data["Visibility"],
         Snowfall=weather_data["Snowfall"],
-        IsWeekend=int(now.weekday() >= 5),  # 0 for weekdays, 1 for weekends
+        IsWeekend=int(now.weekday() >= 5),
     ).create_dataframe()
 
     endpoint_name = "random-forest-endpoint-1"

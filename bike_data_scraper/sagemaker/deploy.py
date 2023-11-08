@@ -6,7 +6,7 @@ if __name__ == "__main__":
     sagemaker_session = sagemaker.Session()
     role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
 
-    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-08-08-59-36-180/output/model.tar.gz"
+    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-08-13-10-20-480/output/model.tar.gz"
     inference_script_path = os.path.join(
         os.getcwd(), "bike_data_scraper", "sagemaker", "inference.py"
     )

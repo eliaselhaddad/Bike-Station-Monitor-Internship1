@@ -2,14 +2,13 @@ import argparse
 import pandas as pd
 import boto3
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
 from io import StringIO
 import logging
 
-logging.basicConfig(level=logging.INFO)
 
-
-# Function to read CSV file from S3
 def read_csv_from_s3(bucket_name, file_path):
     s3 = boto3.client("s3")
     obj = s3.get_object(Bucket=bucket_name, Key=file_path)
@@ -17,23 +16,27 @@ def read_csv_from_s3(bucket_name, file_path):
     return df
 
 
-# Main execution
+def upload_metrics_to_s3(bucket_name, metrics, file_path):
+    s3 = boto3.client("s3")
+    metrics_str = StringIO()
+    pd.DataFrame([metrics]).to_csv(metrics_str, index=False)
+    s3.put_object(Bucket=bucket_name, Key=file_path, Body=metrics_str.getvalue())
+    logging.info(f"Metrics uploaded to S3 bucket sagemaker-eu-north-1-796717305864")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    # Expect a single argument: the full dataset file path in S3
     parser.add_argument("--bucket-name", type=str, required=True)
     parser.add_argument("--file-path", type=str, required=True)
 
     args = parser.parse_args()
 
-    # Read the dataset from S3
     df = read_csv_from_s3(args.bucket_name, args.file_path)
 
-    # Preprocessing steps
     df["Visibility"] = df["Visibility"].fillna(
         23180
-    )  # average visibility the week before missing visbility data
+    )  # average visibility the week before missing visbility data (only missing for 29-31 august)
 
     COLUMNS_TO_KEEP = [
         "IsOpen",
@@ -56,7 +59,6 @@ if __name__ == "__main__":
 
     df = df[COLUMNS_TO_KEEP]
 
-    # Splitting the data into features and target
     X = df.drop("TotalAvailableBikes", axis=1)
     y = df["TotalAvailableBikes"]
 
@@ -66,4 +68,3 @@ if __name__ == "__main__":
 
     # Save the trained model
     joblib.dump(model, "/opt/ml/model/model.joblib")
-    logging.info("Model saved to /opt/ml/model/model.joblib")
