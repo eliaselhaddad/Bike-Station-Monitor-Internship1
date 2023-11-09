@@ -10,7 +10,7 @@ training_job = os.path.join(
 sklearn_estimator = SKLearn(
     entry_point=training_job,  # This should be your training and preprocessing script.
     role=role,
-    instance_type="ml.m5.xlarge",
+    instance_type="ml.m5.2xlarge",
     framework_version="0.23-1",
     py_version="py3",
     hyperparameters={
@@ -24,6 +24,3 @@ sklearn_estimator.fit(
         "train": "s3://danneftw-dscrap-bucket/processed/station_bikes/2023-08-09-2023-11-02/StationaryStations.csv"
     }
 )
-
-
-# ml.m5.xlarge 4/15 - $0.245/h

@@ -62,9 +62,27 @@ if __name__ == "__main__":
     X = df.drop("TotalAvailableBikes", axis=1)
     y = df["TotalAvailableBikes"]
 
-    # Train the model
-    model = RandomForestRegressor()
-    model.fit(X, y)
+    # 0.5% test data only for metrics
+    xtrain, xtest, ytrain, ytest = train_test_split(
+        X, y, test_size=0.005, random_state=42
+    )
 
-    # Save the trained model
+    model = RandomForestRegressor()
+    model.fit(xtrain, ytrain)
+
+    # metrics to upload to s3
+    ypred = model.predict(xtest)
+    mae = mean_absolute_error(ytest, ypred)
+    mse = mean_squared_error(ytest, ypred)
+
+    metrics = {
+        "MAE": mae,
+        "MSE": mse,
+        "R2": r2_score(ytest, ypred),
+    }
+
+    upload_metrics_to_s3(
+        "sagemaker-eu-north-1-796717305864", metrics, "metrics/metrics-full-dataset.csv"
+    )
+
     joblib.dump(model, "/opt/ml/model/model.joblib")

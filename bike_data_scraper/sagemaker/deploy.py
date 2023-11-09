@@ -1,12 +1,15 @@
 import sagemaker
 from sagemaker.sklearn.model import SKLearnModel
+import boto3
 import os
 
 if __name__ == "__main__":
-    sagemaker_session = sagemaker.Session()
+    boto_session = boto3.Session(region_name="eu-north-1")
+    sagemaker_session = sagemaker.Session(boto_session=boto_session)
+
     role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
 
-    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-08-13-10-20-480/output/model.tar.gz"
+    model_data = "s3://sagemaker-eu-north-1-796717305864/sagemaker-scikit-learn-2023-11-09-09-16-37-966/output/model.tar.gz"
     inference_script_path = os.path.join(
         os.getcwd(), "bike_data_scraper", "sagemaker", "inference.py"
     )
@@ -19,14 +22,12 @@ if __name__ == "__main__":
         entry_point=inference_script_path,
     )
 
-    # increased instance
+    # Deploy model with the specified instance type
+    # Real-time inference configuration
     predictor = sklearn_model.deploy(
-        instance_type="ml.m5.2xlarge",
+        instance_type="ml.r5.large",
         initial_instance_count=1,
         endpoint_name="random-forest-endpoint-1",
     )
 
-    print("Endpoint successfully created \nName: {}".format(predictor.endpoint_name))
-
-
-# ml.m5.2xlarge 8/32 - $0.49/h
+    print(f"Endpoint successfully created \nName: {predictor.endpoint_name}")
