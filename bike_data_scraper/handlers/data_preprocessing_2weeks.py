@@ -1,8 +1,8 @@
 import os
 from datetime import datetime
+
 import pandas as pd
 from loguru import logger
-
 
 from bike_data_scraper.s3_client.s3_handler import S3Handler
 
@@ -45,9 +45,7 @@ def lambda_handler(event, context):
         df = derive_weekend_feature(df)
         create_final_datasets_s3(df, DESTINATION_BUCKET, "processed")
         logger.info(
-            print(
-                f"Done! Data successfully processed and saved in https://s3.console.aws.amazon.com/s3/buckets/{DESTINATION_BUCKET}/processed/{CURRENT_DATE}/"
-            )
+            f"Done! Data successfully processed and saved in https://s3.console.aws.amazon.com/s3/buckets/{DESTINATION_BUCKET}/processed/{CURRENT_DATE}/"
         )
     except Exception as e:
         logger.error(f"Something went wrong, data didn't process! Error: {e}")
@@ -66,12 +64,14 @@ def convert_time_to_more_features(
         logger.info(f"Processing {name} data")
 
         if df is None:
-            logger.warning(f"{name} data be empty, so we skip.")
+            logger.warning(f"{name} Data is empty.")
             continue
 
         if "Time" in df.columns and "timestamp" not in df.columns:
             df.rename(columns={"Time": "timestamp"}, inplace=True)
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+        df["timestamp"] = pd.to_datetime(
+            df["timestamp"], format="ISO8601", errors="coerce"
+        )
 
         df["Year"] = df["timestamp"].dt.year
         df["Month"] = df["timestamp"].dt.month
@@ -92,6 +92,7 @@ def merge_both_datasets(data_dict: dict) -> pd.DataFrame:
 
     weather_data = data_dict.get("weather")
     bikes_data = data_dict.get("bikes")
+
     df = pd.merge(
         bikes_data,
         weather_data,
@@ -99,25 +100,32 @@ def merge_both_datasets(data_dict: dict) -> pd.DataFrame:
         left_on=merge_columns,
         right_on=merge_columns,
     )
+
+    df.dropna(inplace=True)
     return df
 
 
 def clean_unused_merge_columns(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("Removing unused merge columns")
+
     df.drop(
         columns=["Time_of_Day_y", "Minute_y", "Time_of_Day_x", "timestamp_y"],
         axis=1,
         inplace=True,
     )
     df.rename(columns={"Minute_x": "Minute", "timestamp_x": "timestamp"}, inplace=True)
+
     return df
 
 
 def derive_weekend_feature(df: pd.DataFrame) -> pd.DataFrame:
+    logger.info("Deriving weekend feature")
     if "timestamp" in df.columns:
         df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
         df["IsWeekend"] = df["timestamp"].dt.dayofweek >= 5
         df["IsWeekend"] = df["IsWeekend"].astype(int)
+
+        logger.info("Successfully derived weekend feature")
         return df
     else:
         logger.warning(
@@ -147,7 +155,6 @@ def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
     try:
         SingleBikes = df[df["stationId"].str.startswith("BIKE")]
         StationaryStations = df[~df["stationId"].str.startswith("BIKE")]
-        logger.info(SingleBikes.columns)
         current_date_singles = get_min_and_max_dates_from_dataframe(SingleBikes)
         current_date_stations = get_min_and_max_dates_from_dataframe(StationaryStations)
         s3_handler.save_dataframe_to_s3(
@@ -173,3 +180,6 @@ def create_final_datasets_s3(df: pd.DataFrame, bucket: str, path: str):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise e
+
+
+lambda_handler(None, None)

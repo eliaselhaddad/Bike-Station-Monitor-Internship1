@@ -18,16 +18,15 @@ if __name__ == "__main__":
     train_path = "/home/ec2-user/train.py"
 
     s3_input_train = sagemaker.inputs.TrainingInput(
-        # s3_data="s3://sagemaker-eu-north-1-796717305864/sagemaker/sklearncontainer/",
-        s3_data="s3://cyrille-dscrap-bucket/processed/station_bikes/2023-09-10-2023-09-24/",
+        s3_data="s3://cyrille-dscrap-bucket/processed/2023-09-11-2023-09-24/station_bikes/",
         content_type="csv",
     )
 
     logging.info("Training model within deploy.py")
     sklearn = SKLearn(
         entry_point=train_path,
-        role=role,
         instance_type="ml.m5.xlarge",
+        role=role,
         sagemaker_session=sagemaker_session,
         framework_version="0.23-1",
         py_version="py3",
@@ -40,5 +39,7 @@ if __name__ == "__main__":
     predictor = sklearn.deploy(
         instance_type="ml.m5.xlarge",
         initial_instance_count=1,
-        endpoint_name="random-forest-endpoint-v1",
+        endpoint_name="random-forest-endpoint-v2",
     )
+
+    print(f"Endpoint successfully created \nName: {predictor.endpoint_name}")

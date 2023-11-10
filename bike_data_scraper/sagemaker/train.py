@@ -3,39 +3,14 @@ from sklearn.ensemble import RandomForestRegressor
 import joblib
 import logging
 import os
-from sklearn.model_selection import train_test_split
 
-logging.basicConfig(level=logging.INFO)
+role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
+training_job = os.path.join(
+    os.getcwd(), "bike_data_scraper", "sagemaker", "training_job.py"
+)
 
 if __name__ == "__main__":
     logging.info("Starting training")
-
-    # xtrain_path = os.path.join(os.environ["SM_CHANNEL_TRAINING"], "xtrain2.csv")
-    # xtest_path = os.path.join(os.environ["SM_CHANNEL_TRAINING"], "xtest2.csv")
-    # ytrain_path = os.path.join(os.environ["SM_CHANNEL_TRAINING"], "ytrain2.csv")
-    # ytest_path = os.path.join(os.environ["SM_CHANNEL_TRAINING"], "ytest2.csv")
-
-    # logging.info("Reading data")
-    # logging.info(f"Reading data from {xtrain_path}")
-    # X_train = pd.read_csv(xtrain_path)
-
-    # logging.info(f"Reading data from {xtest_path}")
-    # X_test = pd.read_csv(xtest_path)
-
-    # logging.info(f"Reading data from {ytrain_path}")
-    # y_train = pd.read_csv(ytrain_path)
-
-    # logging.info(f"Reading data from {ytest_path}")
-    # y_test = pd.read_csv(ytest_path)
-
-    # logging.info("Training model")
-    # model = RandomForestRegressor()
-
-    # logging.info("Fitting model")
-    # model.fit(X_train, y_train)
-
-    # accuracy = model.score(X_test, y_test)
-    # logging.info(f"Accuracy: {accuracy * 100:.2f}%")
 
     logging.info("Reading data")
     data_path = os.path.join(
@@ -50,11 +25,31 @@ if __name__ == "__main__":
 
     logging.info("Splitting data")
 
-    X_train = data.drop("TotalAvailableBikes", axis=1)
-    y_train = data["TotalAvailableBikes"]
+    X, y = (
+        data[
+            [
+                "IsOpen",
+                "Long",
+                "Lat",
+                "Year",
+                "Month",
+                "Day",
+                "Hour",
+                "Minute",
+                "Temperature",
+                "Humidity",
+                "Wind_Speed",
+                "Precipitation",
+                "Visibility",
+                "Snowfall",
+                "IsWeekend",
+            ]
+        ],
+        data["TotalAvailableBikes"],
+    )
 
     logging.info("Fitting model")
-    model.fit(X_train, y_train)
+    model.fit(X, y)
     joblib.dump(model, "/opt/ml/model/model.joblib")
     joblib.dump(model, os.path.join(os.environ["SM_MODEL_DIR"], "model.joblib"))
     logging.info("Model saved to /opt/ml/model/model.joblib")
