@@ -2,11 +2,16 @@ import sagemaker
 from sagemaker.sklearn.estimator import SKLearn
 import boto3
 import logging
+import argparse
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date", type=str, required=True)
+
+    args = parser.parse_args()
     role = "arn:aws:iam::796717305864:role/bike-scrapper-sagemaker-role"
 
     logging.info("Starting training from deploy.py")
@@ -18,7 +23,7 @@ if __name__ == "__main__":
     train_path = "/home/ec2-user/train.py"
 
     s3_input_train = sagemaker.inputs.TrainingInput(
-        s3_data="s3://cyrille-dscrap-bucket/processed/2023-09-11-2023-09-24/station_bikes/",
+        s3_data=f"s3://cyrille-dscrap-bucket/processed/{args.date}/station_bikes/",
         content_type="csv",
     )
 

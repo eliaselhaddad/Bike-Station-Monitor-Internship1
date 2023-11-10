@@ -6,6 +6,8 @@ def lambda_handler(event, context):
     ec2 = boto3.resource("ec2")
     ssm = boto3.client("ssm")
 
+    training_date = event.get("date")
+
     try:
         logger.info("Creating EC2 instance")
         instances = ec2.create_instances(
@@ -15,7 +17,7 @@ def lambda_handler(event, context):
             InstanceType="t3.xlarge",
             KeyName="sosTrainKey",
             IamInstanceProfile={"Name": "my-sagemaker-instance-profile"},
-            UserData="""#!/bin/bash
+            UserData=f"""#!/bin/bash
             yum update -y
             yum groupinstall 'Development Tools' -y
             yum install openssl-devel bzip2-devel libffi-devel -y
@@ -44,7 +46,7 @@ def lambda_handler(event, context):
             chmod +x /home/ec2-user/train.py
             chmod +x /home/ec2-user/deploy.py
 
-            /home/ec2-user/env/bin/python /home/ec2-user/deploy.py
+            /home/ec2-user/env/bin/python /home/ec2-user/deploy.py --date {training_date}
             """,
         )
 
