@@ -126,11 +126,3 @@ class DataScraperStack(Stack):
             service_config=service_config,
             lambda_layer=common_layer,
         )
-
-        # TrainingDataSplitScraper(
-        #     self,
-        #     f"{stage_name}-TrainingDataSplitScraper",
-        #     stage_name=stage_name,
-        #     service_config=service_config,
-        #     lambda_layer=[common_layer,training_layer]
-        # )
