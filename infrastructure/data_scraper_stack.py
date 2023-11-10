@@ -10,6 +10,13 @@ from infrastructure.constructs.step_functions_poc import StepFunctionsPoc
 from infrastructure.constructs.weather_data_scraper import WeatherDataScraper
 from infrastructure.constructs.graphs_data_scraper import GraphsDataScraper
 
+# from infrastructure.constructs.training_data_split import TrainingDataSplitScraper
+from infrastructure.constructs.start_ec2_instance import StartEC2TrainingInstance
+from infrastructure.constructs.check_ec2_status import CheckEC2TrainingInstance
+from infrastructure.constructs.shutdown_ec2_training_instance import (
+    ShutdownEC2TrainingInstance,
+)
+
 
 class DataScraperStack(Stack):
     def __init__(
@@ -33,6 +40,15 @@ class DataScraperStack(Stack):
             compatible_runtimes=[aws_lambda.Runtime.PYTHON_3_10],
             removal_policy=RemovalPolicy.DESTROY,
         )
+
+        # training_layer = PythonLayerVersion(
+        #     self,
+        #     training_layer_name,
+        #     layer_version_name=training_layer_name,
+        #     entry=".build/ml_layer/",
+        #     compatible_runtimes=[aws_lambda.Runtime.PYTHON_3_10],
+        #     removal_policy=RemovalPolicy.DESTROY,
+        # )
 
         DataScraper(
             self,
@@ -86,3 +102,35 @@ class DataScraperStack(Stack):
             service_config=service_config,
             lambda_layer=common_layer,
         )
+
+        StartEC2TrainingInstance(
+            self,
+            f"{stage_name}-StartEC2TrainingInstance",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
+
+        CheckEC2TrainingInstance(
+            self,
+            f"{stage_name}-CheckEC2TrainingInstance",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
+
+        ShutdownEC2TrainingInstance(
+            self,
+            f"{stage_name}-ShutdownEC2TrainingInstance",
+            stage_name=stage_name,
+            service_config=service_config,
+            lambda_layer=common_layer,
+        )
+
+        # TrainingDataSplitScraper(
+        #     self,
+        #     f"{stage_name}-TrainingDataSplitScraper",
+        #     stage_name=stage_name,
+        #     service_config=service_config,
+        #     lambda_layer=[common_layer,training_layer]
+        # )
