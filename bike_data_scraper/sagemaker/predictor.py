@@ -40,8 +40,8 @@ def fetch_weather_data():
 
 
 if __name__ == "__main__":
-    LAT = 57.715885
-    LONG = 11.910317
+    LAT = 57.728825
+    LONG = 12.01216
     weather_data = fetch_weather_data()
 
     now = datetime.now()
