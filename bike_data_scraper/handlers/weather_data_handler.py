@@ -77,7 +77,15 @@ def fetch_weather_data(url: str, api_endpoint: str) -> dict:
 
 def convert_to_csv(weather_data: dict) -> str:
     hourly_data = weather_data["hourly"]
-    fieldnames = ["time", "temperature_2m", "relativehumidity_2m", "windspeed_10m"]
+    fieldnames = [
+        "time",
+        "temperature_2m",
+        "relativehumidity_2m",
+        "windspeed_10m",
+        "precipitation",
+        "visibility",
+        "snowfall",
+    ]
     csv_data = []
     for i in range(len(hourly_data["time"])):
         row = {field: hourly_data[field][i] for field in fieldnames}
