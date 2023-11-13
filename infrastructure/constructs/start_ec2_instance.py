@@ -111,5 +111,31 @@ class StartEC2TrainingInstance(Construct):
                     managed_policy_name="AmazonEC2ContainerRegistryFullAccess"
                 ),
             ],
+            inline_policies={
+                "ssm-policy": aws_iam.PolicyDocument(
+                    statements=[
+                        aws_iam.PolicyStatement(
+                            effect=aws_iam.Effect.ALLOW,
+                            resources=[
+                                "arn:aws:ssm:*:796717305864:parameter/ec2-instance-ids/*"
+                            ],
+                            actions=[
+                                "ssm:PutParameter",
+                                "ssm:GetParameter",
+                                "ssm:DeleteParameter",
+                            ],
+                        )
+                    ]
+                )
+            },
         )
+        pass_role_policy_statement = aws_iam.PolicyStatement(
+            actions=["iam:PassRole"],
+            # This allows the role to pass any role within the same AWS account
+            resources=["arn:aws:iam::*:role/*"],
+            effect=aws_iam.Effect.ALLOW,
+        )
+
+        # Attach the inline policy to the role
+        role.add_to_policy(pass_role_policy_statement)
         return role

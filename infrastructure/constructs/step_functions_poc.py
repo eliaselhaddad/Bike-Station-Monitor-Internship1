@@ -63,6 +63,12 @@ class StepFunctionsPoc(Construct):
             function_name=f"{stage_name}-{service_short_name}-graphs-data-scraper",
         )
 
+        self.start_ec2_training_instance_lambda = aws_lambda.Function.from_function_name(
+            self,
+            id=f"{stage_name}-{service_short_name}-start-ec2-training-instance",
+            function_name=f"{stage_name}-{service_short_name}-start-ec2-training-instance",
+        )
+
         first_parallel_lambda_task = tasks.LambdaInvoke(
             self, id="FetchBikeDataFromApi", lambda_function=self.bike_lambda
         )
@@ -84,6 +90,12 @@ class StepFunctionsPoc(Construct):
             self, id="FetchGraphsData", lambda_function=self.graphs_lambda
         )
 
+        sixth_lambda_task = tasks.LambdaInvoke(
+            self,
+            id="StartEC2TrainingInstance",
+            lambda_function=self.start_ec2_training_instance_lambda,
+        )
+
         parallel_task = (
             sfn.Parallel(self, "FetchWeatherAndBikeData")
             .branch(first_parallel_lambda_task)
@@ -92,6 +104,7 @@ class StepFunctionsPoc(Construct):
         parallel_task.next(third_lambda_task)
         third_lambda_task.next(fourth_lambda_task)
         fourth_lambda_task.next(fifth_lambda_task)
+        fifth_lambda_task.next(sixth_lambda_task)
 
         sfn.StateMachine(self, id=state_machine_name, definition=parallel_task)
 
