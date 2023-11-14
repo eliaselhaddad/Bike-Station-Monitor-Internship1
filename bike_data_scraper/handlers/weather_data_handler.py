@@ -46,6 +46,14 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     }
 
 
+# Måndag kl 01:00
+# datetime.now() == 2023-10-01T01:00:00
+# Söndag 2 veckor bakåt == HELA SÖNDAG -> HELA MÅNDAG x2
+# now = date.now() - timedelta(days=1) == 2023-09-30
+# one_weeks_ago = now - timedelta(days=6)
+# söndag, lördag, fre, tors, ons, tis, månd, söndag
+
+
 def calculate_dates():
     today = dt.date.today()
     start_date = today - dt.timedelta(days=14)
